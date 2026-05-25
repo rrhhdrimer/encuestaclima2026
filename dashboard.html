@@ -181,6 +181,7 @@
 
 <script>
 const SHEETS_ID = '1IT_sRqzsuMteZ9rNdHGM95uH605CO2VlBPQd17hMQaw';
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw73i0Y6g7Hk5VAcDAU8IHFw5kW1RMskfQXmvudHDsxqwcU1hge8QWn2TXASAiJVs8VGw/exec';
 
 // Rangos de preguntas por dimensión
 const DIMS = {
@@ -245,35 +246,13 @@ function calcDim(rows, start, end) {
 async function cargarDatos() {
   document.getElementById('last-update').textContent = 'Actualizando...';
   try {
-    const url = 'https://docs.google.com/spreadsheets/d/' + SHEETS_ID + '/gviz/tq?tqx=out:json&sheet=Respuestas';
+    const url = APPS_SCRIPT_URL;
     const res = await fetch(url);
-    const txt = await res.text();
-    // Limpiar prefijo google /*O_o*/ google.visualization.Query.setResponse(...)
-    const startIdx = txt.indexOf('{');
-    const endIdx = txt.lastIndexOf('}');
-    const json = JSON.parse(txt.substring(startIdx, endIdx + 1));
-    const rows = json.table ? json.table.rows : [];
-    if (!rows || !rows.length) { aplicarFiltros(); document.getElementById('last-update').textContent = 'Sin datos aún'; return; }
+    const json = await res.json();
+    const rows = json.data || [];
+    if (!rows.length) { aplicarFiltros(); document.getElementById('last-update').textContent = 'Sin datos aún'; return; }
 
-    allData = [];
-    rows.forEach(function(r) {
-      if (!r.c) return;
-      // Saltar fila de encabezados
-      const first = r.c[0] ? (r.c[0].v || '') : '';
-      if (String(first).toLowerCase().includes('timestamp')) return;
-      const obj = {
-        timestamp: r.c[0].v,
-        gerencia:  r.c[1] ? (r.c[1].v || '') : '',
-        area:      r.c[2] ? (r.c[2].v || '') : '',
-        empresa:   r.c[3] ? (r.c[3].v || '') : '',
-        jefe:      r.c[4] ? (r.c[4].v || '') : '',
-        respuestas: []
-      };
-      for (var i = 5; i < 65; i++) {
-        obj.respuestas.push(r.c[i] ? (r.c[i].v || 0) : 0);
-      }
-      allData.push(obj);
-    });
+    allData = rows.filter(function(r) { return r.gerencia; });
 
     // Poblar filtro gerencias
     const gerencias = [...new Set(allData.map(function(d){return d.gerencia;}))].filter(Boolean).sort();
