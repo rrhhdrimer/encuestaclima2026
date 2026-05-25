@@ -185,10 +185,26 @@ const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw73i0Y6g7Hk5VA
 
 // Rangos de preguntas por dimensión
 const DIMS = {
-  'Jefe inmediato':   {start:1,  end:20, icon:'🙋'},
-  'Imparcialidad':    {start:21, end:29, icon:'⚖️'},
-  'Orgullo':          {start:30, end:38, icon:'🏆'},
-  'Camaradería':      {start:39, end:60, icon:'🤝'}
+  'Liderazgo': {
+    start:1, end:20, icon:'🙋',
+    titulo: 'Liderazgo',
+    sub: '¿Cómo te sientes respecto a la persona que seleccionaste como tu jefe inmediato?'
+  },
+  'Imparcialidad y equidad': {
+    start:21, end:29, icon:'⚖️',
+    titulo: 'Imparcialidad y equidad',
+    sub: '¿Cómo te sientes respecto al trato justo dentro de la organización?'
+  },
+  'Orgullo e identidad': {
+    start:30, end:38, icon:'🏆',
+    titulo: 'Orgullo e identidad',
+    sub: '¿Qué tanto te sientes identificado con la empresa?'
+  },
+  'Empresa y camaradería': {
+    start:39, end:60, icon:'🤝',
+    titulo: 'Empresa y camaradería',
+    sub: '¿Cómo te sientes respecto a los recursos, ambiente laboral, beneficios y la relación con tus compañeros?'
+  }
 };
 
 let allData = [];
@@ -388,8 +404,11 @@ function renderTablaJefes(jefes) {
 
 function dimCard(nombre, icon, score, color) {
   const bc = barColor(score);
+  const dim = DIMS[nombre];
+  const sub = dim ? dim.sub : '';
   return '<div class="dim-card">' +
     '<div class="dim-card-title">' + icon + ' ' + nombre + '</div>' +
+    (sub ? '<div style="font-size:11px;color:var(--muted);margin-bottom:14px;line-height:1.5">' + sub + '</div>' : '') +
     '<div class="dim-row">' +
       '<div class="dim-row-top"><span class="dim-row-label">Score global</span><span class="dim-row-val">' + score + '%</span></div>' +
       '<div class="dim-bar-bg"><div class="dim-bar-fill" style="width:' + score + '%;background:' + bc + '"></div></div>' +
@@ -415,7 +434,14 @@ function renderChartDims(dimScores) {
     },
     options: {
       responsive: true, maintainAspectRatio: false,
-      plugins: {legend:{display:false}, tooltip:{callbacks:{label:function(c){return ' '+c.raw+'%';}}}},
+      plugins: {legend:{display:false}, tooltip:{callbacks:{
+        label:function(c){return ' '+c.raw+'%';},
+        afterLabel:function(c){
+          const keys = Object.keys(DIMS);
+          const dim = DIMS[keys[c.dataIndex]];
+          return dim ? dim.sub : '';
+        }
+      }}},
       scales: {
         x: {grid:{color:'rgba(182,207,208,0.06)'},ticks:{color:'#B6CFD0',font:{size:11,family:'Poppins'}}},
         y: {min:0,max:100,grid:{color:'rgba(182,207,208,0.06)'},ticks:{color:'#B6CFD0',font:{size:11,family:'Poppins'},callback:function(v){return v+'%';}}}
