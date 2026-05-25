@@ -393,14 +393,7 @@ function renderDashboard() {
     // Dimensiones + Gerencias
     '<div class="charts-grid">' +
       '<div class="chart-card"><div class="chart-title">Score por dimensión <span style="font-size:10px;color:var(--muted);font-weight:400">· Clic para ver detalle</span></div><div class="chart-sub">Porcentaje de respuestas favorables por cada dimensión GPTW</div><div class="chart-wrap" style="height:280px;cursor:pointer"><canvas id="chart-dims"></canvas></div></div>' +
-      '<div class="chart-card"><div class="chart-title">Score por gerencia</div><div class="chart-sub">Trust Index comparativo entre gerencias</div><div class="chart-wrap"><canvas id="chart-ger"></canvas></div></div>' +
-    '</div>' +
-
-    // Ranking jefes
-    '<div class="table-card">' +
-      '<div class="table-title">Ranking de jefes inmediatos</div>' +
-      '<div class="table-sub">Score basado en las primeras 20 preguntas. Solo se muestran jefes con 5 o más respuestas. <span style="color:var(--sage)">· Clic en una fila para ver detalle</span></div>' +
-      renderTablaJefes(jefeScores) +
+      '<div class="chart-card"><div class="chart-title">Score por gerencia <span style="font-size:10px;color:var(--muted);font-weight:400">· Clic para filtrar</span></div><div class="chart-sub">Trust Index comparativo entre gerencias</div><div class="chart-wrap"><canvas id="chart-ger"></canvas></div></div>' +
     '</div>' +
 
     // Dimensiones detalle
@@ -408,14 +401,26 @@ function renderDashboard() {
       Object.keys(DIMS).map(function(k, i) {
         return dimCard(k, DIMS[k].icon, dimScores[k], DIM_COLORS[i]);
       }).join('') +
+    '</div>' +
+
+    // Ranking jefes
+    '<div class="table-card">' +
+      '<div class="table-title">Ranking de jefes inmediatos</div>' +
+      '<div class="table-sub">Score basado en las primeras 20 preguntas. Solo se muestran jefes con 5 o más respuestas. <span style="color:var(--sage)">· Clic en una fila para ver detalle</span></div>' +
+      renderTablaJefes(jefeScores) +
     '</div>';
 
     // Event listeners para ranking de jefes
   setTimeout(function() {
     document.querySelectorAll('.jefe-row').forEach(function(row) {
-      row.addEventListener('click', function() {
+      row.addEventListener('click', function(e) {
         const nombre = this.getAttribute('data-jefe');
-        window.location.href = 'detalle.html?tipo=jefe&nombre=' + encodeURIComponent(nombre);
+        const url = 'detalle.html?tipo=jefe&nombre=' + encodeURIComponent(nombre);
+        if (e.ctrlKey || e.metaKey) {
+          window.open(url, '_blank');
+        } else {
+          window.location.href = url;
+        }
       });
     });
   }, 100);
@@ -509,7 +514,12 @@ function renderChartDims(dimScores) {
         if (elements.length > 0) {
           const idx = elements[0].index;
           const dim = Object.keys(DIMS)[idx];
-          window.location.href = 'detalle.html?tipo=dimension&nombre=' + encodeURIComponent(dim);
+          const url = 'detalle.html?tipo=dimension&nombre=' + encodeURIComponent(dim);
+          if (evt.native && (evt.native.ctrlKey || evt.native.metaKey)) {
+            window.open(url, '_blank');
+          } else {
+            window.location.href = url;
+          }
         }
       },
       plugins: {
@@ -590,7 +600,7 @@ function renderChartGer(gerScores) {
   new Chart(ctx, {
     type: 'bar',
     data: {
-      labels: gerScores.map(function(g){return g.nombre.length>20?g.nombre.substring(0,20)+'...':g.nombre;}),
+      labels: gerScores.map(function(g){return g.nombre;}),
       datasets: [{
         data: gerScores.map(function(g){return g.score;}),
         backgroundColor: gerScores.map(function(g){return barColor(g.score)+'99';}),
@@ -603,6 +613,14 @@ function renderChartGer(gerScores) {
       indexAxis: 'y',
       responsive: true, maintainAspectRatio: false,
       layout: {padding: {right: 48}},
+      onClick: function(evt, elements) {
+        if (elements.length > 0) {
+          const gerencia = gerScores[elements[0].index].nombre;
+          document.getElementById('f-gerencia').value = gerencia;
+          aplicarFiltros();
+          window.scrollTo({top: 0, behavior: 'smooth'});
+        }
+      },
       plugins: {
         legend:{display:false},
         tooltip:{callbacks:{label:function(c){return ' '+c.raw+'% ('+gerScores[c.dataIndex].n+' resp.)';}}},
