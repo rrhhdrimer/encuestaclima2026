@@ -61,6 +61,12 @@
   .kpi-card.yellow::before{background:var(--yellow);}
   .kpi-card.red::before{background:var(--red);}
   .kpi-card.blue::before{background:var(--sage);}
+  .kpi-card.trust{background:#DDE5ED!important;border-color:rgba(56,73,103,0.2)!important;}
+  .kpi-card.trust .kpi-label{color:#384967;}
+  .kpi-card.trust .kpi-value{color:#051C2C;}
+  .kpi-card.trust .kpi-value span{color:#384967;}
+  .kpi-card.trust .kpi-sub{color:#384967;}
+  .kpi-card.trust .kpi-badge{background:rgba(56,73,103,0.1);color:#384967;}
 
   .kpi-label{font-size:10px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:10px;}
   .kpi-value{font-size:38px;font-weight:700;color:#fff;line-height:1;margin-bottom:6px;}
@@ -124,6 +130,24 @@
   .empty-icon{font-size:48px;margin-bottom:16px;}
   .empty h3{font-size:16px;font-weight:600;color:var(--silver);margin-bottom:8px;}
   .empty p{font-size:13px;line-height:1.7;}
+
+  /* SEMÁFORO */
+  .semaforo-card{background:var(--card);border:1px solid var(--border);border-radius:var(--rlg);padding:24px;margin-bottom:24px;}
+  .semaforo-title{font-size:13px;font-weight:700;color:var(--silver);margin-bottom:4px;}
+  .semaforo-sub{font-size:11px;color:var(--muted);margin-bottom:18px;}
+  .sem-row{display:flex;align-items:center;gap:12px;margin-bottom:12px;}
+  .sem-dot{width:14px;height:14px;border-radius:50%;flex-shrink:0;}
+  .sem-range{font-size:12px;font-weight:700;color:var(--silver);min-width:70px;}
+  .sem-label{font-size:12px;color:var(--muted);}
+
+  /* KPI + charts layout */
+  .top-row{display:grid;grid-template-columns:1fr 280px;gap:16px;margin-bottom:24px;}
+  @media(max-width:900px){.top-row{grid-template-columns:1fr;}}
+  .top-left{display:flex;flex-direction:column;gap:16px;}
+
+  /* % encima de barra en charts */
+  .bar-label-wrap{position:relative;}
+  .chart-pct{position:absolute;top:-18px;font-size:10px;font-weight:700;color:var(--silver);}
 
   /* FOOTER */
   .footer{text-align:center;padding:32px;font-size:11px;color:var(--muted);border-top:1px solid var(--border);margin-top:16px;}
@@ -340,12 +364,17 @@ function renderDashboard() {
 
   // Render HTML
   cont.innerHTML =
-    // KPIs
-    '<div class="kpi-grid">' +
-      kpiCard('Trust Index Global', trust, '%', scoreLabel(trust), scoreColor(trust), 'Porcentaje de respuestas favorables (4-5)', 'blue') +
-      kpiCard('Participantes', filteredData.length, '', '', 'blue', 'Respuestas recibidas', 'blue') +
-      kpiCard('Mejor dimensión', Math.max(...Object.values(dimScores)), '%', Object.keys(dimScores).find(function(k){return dimScores[k]===Math.max(...Object.values(dimScores));}), scoreColor(Math.max(...Object.values(dimScores))), '', 'green') +
-      kpiCard('Dimensión crítica', Math.min(...Object.values(dimScores)), '%', Object.keys(dimScores).find(function(k){return dimScores[k]===Math.min(...Object.values(dimScores));}), scoreColor(Math.min(...Object.values(dimScores))), '', 'red') +
+    // TOP ROW: KPIs + Semáforo
+    '<div class="top-row">' +
+      '<div class="top-left">' +
+        '<div class="kpi-grid">' +
+          kpiCard('Trust Index Global', trust, '%', scoreLabel(trust), scoreColor(trust), 'Porcentaje de respuestas favorables (4-5)', 'trust') +
+          kpiCard('Participantes', filteredData.length, '', '', 'blue', 'Respuestas recibidas', 'blue') +
+          kpiCard('Mejor dimensión', Math.max(...Object.values(dimScores)), '%', Object.keys(dimScores).find(function(k){return dimScores[k]===Math.max(...Object.values(dimScores));}), scoreColor(Math.max(...Object.values(dimScores))), '', 'green') +
+          kpiCard('Dimensión crítica', Math.min(...Object.values(dimScores)), '%', Object.keys(dimScores).find(function(k){return dimScores[k]===Math.min(...Object.values(dimScores));}), scoreColor(Math.min(...Object.values(dimScores))), '', 'red') +
+        '</div>' +
+      '</div>' +
+      renderSemaforo() +
     '</div>' +
 
     // Dimensiones + Gerencias
@@ -417,6 +446,18 @@ function dimCard(nombre, icon, score, color) {
   '</div>';
 }
 
+function renderSemaforo() {
+  return '<div class="semaforo-card">' +
+    '<div class="semaforo-title">🚦 Escala de resultados</div>' +
+    '<div class="semaforo-sub">Intervalos del Trust Index</div>' +
+    '<div class="sem-row"><div class="sem-dot" style="background:#2e7d32"></div><div class="sem-range">90% – 100%</div><div class="sem-label">Excelente · Clase mundial</div></div>' +
+    '<div class="sem-row"><div class="sem-dot" style="background:#4caf7d"></div><div class="sem-range">75% – 89%</div><div class="sem-label">Muy bueno</div></div>' +
+    '<div class="sem-row"><div class="sem-dot" style="background:#e8b84b"></div><div class="sem-range">60% – 74%</div><div class="sem-label">Bueno, con áreas de mejora</div></div>' +
+    '<div class="sem-row"><div class="sem-dot" style="background:#e07a2a"></div><div class="sem-range">45% – 59%</div><div class="sem-label">Regular, requiere atención</div></div>' +
+    '<div class="sem-row"><div class="sem-dot" style="background:#e05c5c"></div><div class="sem-range">0% – 44%</div><div class="sem-label">Crítico, acción urgente</div></div>' +
+  '</div>';
+}
+
 function renderChartDims(dimScores) {
   const ctx = document.getElementById('chart-dims');
   if (!ctx) return;
@@ -434,18 +475,37 @@ function renderChartDims(dimScores) {
     },
     options: {
       responsive: true, maintainAspectRatio: false,
-      plugins: {legend:{display:false}, tooltip:{callbacks:{
-        label:function(c){return ' '+c.raw+'%';},
-        afterLabel:function(c){
-          const keys = Object.keys(DIMS);
-          const dim = DIMS[keys[c.dataIndex]];
-          return dim ? dim.sub : '';
-        }
-      }}},
+      layout: {padding: {top: 24}},
+      plugins: {
+        legend:{display:false},
+        tooltip:{callbacks:{
+          title: function(c) {
+            const keys = Object.keys(DIMS);
+            const dim = DIMS[keys[c[0].dataIndex]];
+            return dim ? dim.sub : keys[c[0].dataIndex];
+          },
+          label: function() { return ''; }
+        }},
+        datalabels: false
+      },
       scales: {
         x: {grid:{color:'rgba(182,207,208,0.06)'},ticks:{color:'#B6CFD0',font:{size:11,family:'Poppins'}}},
         y: {min:0,max:100,grid:{color:'rgba(182,207,208,0.06)'},ticks:{color:'#B6CFD0',font:{size:11,family:'Poppins'},callback:function(v){return v+'%';}}}
-      }
+      },
+      animation: {onComplete: function(anim) {
+        const chart = anim.chart;
+        const ctx = chart.ctx;
+        ctx.save();
+        ctx.font = 'bold 11px Poppins';
+        ctx.fillStyle = '#DDE5ED';
+        ctx.textAlign = 'center';
+        chart.data.datasets[0].data.forEach(function(val, i) {
+          const meta = chart.getDatasetMeta(0);
+          const bar = meta.data[i];
+          ctx.fillText(val + '%', bar.x, bar.y - 6);
+        });
+        ctx.restore();
+      }}
     }
   });
 }
@@ -468,11 +528,29 @@ function renderChartGer(gerScores) {
     options: {
       indexAxis: 'y',
       responsive: true, maintainAspectRatio: false,
-      plugins: {legend:{display:false}, tooltip:{callbacks:{label:function(c){return ' '+c.raw+'% ('+gerScores[c.dataIndex].n+' resp.)';}}}},
+      layout: {padding: {right: 48}},
+      plugins: {
+        legend:{display:false},
+        tooltip:{callbacks:{label:function(c){return ' '+c.raw+'% ('+gerScores[c.dataIndex].n+' resp.)';}}},
+      },
       scales: {
         x: {min:0,max:100,grid:{color:'rgba(182,207,208,0.06)'},ticks:{color:'#B6CFD0',font:{size:11,family:'Poppins'},callback:function(v){return v+'%';}}},
         y: {grid:{color:'rgba(182,207,208,0.06)'},ticks:{color:'#B6CFD0',font:{size:11,family:'Poppins'}}}
-      }
+      },
+      animation: {onComplete: function(anim) {
+        const chart = anim.chart;
+        const ctx = chart.ctx;
+        ctx.save();
+        ctx.font = 'bold 11px Poppins';
+        ctx.fillStyle = '#DDE5ED';
+        ctx.textBaseline = 'middle';
+        chart.data.datasets[0].data.forEach(function(val, i) {
+          const meta = chart.getDatasetMeta(0);
+          const bar = meta.data[i];
+          ctx.fillText(val + '%', bar.x + 6, bar.y);
+        });
+        ctx.restore();
+      }}
     }
   });
 }
