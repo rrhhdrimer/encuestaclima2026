@@ -248,13 +248,19 @@ async function cargarDatos() {
     const url = 'https://docs.google.com/spreadsheets/d/' + SHEETS_ID + '/gviz/tq?tqx=out:json&sheet=Respuestas';
     const res = await fetch(url);
     const txt = await res.text();
-    const json = JSON.parse(txt.substring(47).slice(0,-2));
-    const rows = json.table.rows;
+    // Limpiar prefijo google /*O_o*/ google.visualization.Query.setResponse(...)
+    const startIdx = txt.indexOf('{');
+    const endIdx = txt.lastIndexOf('}');
+    const json = JSON.parse(txt.substring(startIdx, endIdx + 1));
+    const rows = json.table ? json.table.rows : [];
+    if (!rows || !rows.length) { aplicarFiltros(); document.getElementById('last-update').textContent = 'Sin datos aún'; return; }
 
     allData = [];
-    rows.forEach(function(r, idx) {
-      if (idx === 0) return; // saltar encabezado si existe
-      if (!r.c[0] || !r.c[0].v) return;
+    rows.forEach(function(r) {
+      if (!r.c) return;
+      // Saltar fila de encabezados
+      const first = r.c[0] ? (r.c[0].v || '') : '';
+      if (String(first).toLowerCase().includes('timestamp')) return;
       const obj = {
         timestamp: r.c[0].v,
         gerencia:  r.c[1] ? (r.c[1].v || '') : '',
