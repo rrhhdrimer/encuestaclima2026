@@ -392,14 +392,14 @@ function renderDashboard() {
 
     // Dimensiones + Gerencias
     '<div class="charts-grid">' +
-      '<div class="chart-card"><div class="chart-title">Score por dimensión</div><div class="chart-sub">Porcentaje de respuestas favorables por cada dimensión GPTW</div><div class="chart-wrap" style="height:280px"><canvas id="chart-dims"></canvas></div></div>' +
+      '<div class="chart-card"><div class="chart-title">Score por dimensión <span style="font-size:10px;color:var(--muted);font-weight:400">· Clic para ver detalle</span></div><div class="chart-sub">Porcentaje de respuestas favorables por cada dimensión GPTW</div><div class="chart-wrap" style="height:280px;cursor:pointer"><canvas id="chart-dims"></canvas></div></div>' +
       '<div class="chart-card"><div class="chart-title">Score por gerencia</div><div class="chart-sub">Trust Index comparativo entre gerencias</div><div class="chart-wrap"><canvas id="chart-ger"></canvas></div></div>' +
     '</div>' +
 
     // Ranking jefes
     '<div class="table-card">' +
       '<div class="table-title">Ranking de jefes inmediatos</div>' +
-      '<div class="table-sub">Score basado en las primeras 20 preguntas. Solo se muestran jefes con 5 o más respuestas.</div>' +
+      '<div class="table-sub">Score basado en las primeras 20 preguntas. Solo se muestran jefes con 5 o más respuestas. <span style="color:var(--sage)">· Clic en una fila para ver detalle</span></div>' +
       renderTablaJefes(jefeScores) +
     '</div>' +
 
@@ -432,7 +432,7 @@ function renderTablaJefes(jefes) {
   jefes.forEach(function(j, i) {
     const c = scoreColor(j.score);
     const bc = barColor(j.score);
-    html += '<tr>' +
+    html += '<tr style="cursor:pointer" onclick="window.open(\'detalle.html?tipo=jefe&nombre=\' + encodeURIComponent(j.nombre), \'_blank\')">' +
       '<td class="rank-num">' + (i+1) + '</td>' +
       '<td>' + j.nombre + '</td>' +
       '<td><span class="score-pill ' + c + '">' + j.score + '%</span></td>' +
@@ -495,6 +495,13 @@ function renderChartDims(dimScores) {
     options: {
       responsive: true, maintainAspectRatio: false,
       layout: {padding: {top: 24}},
+      onClick: function(evt, elements) {
+        if (elements.length > 0) {
+          const idx = elements[0].index;
+          const dim = Object.keys(DIMS)[idx];
+          window.open('detalle.html?tipo=dimension&nombre=' + encodeURIComponent(dim), '_blank');
+        }
+      },
       plugins: {
         legend:{display:false},
         tooltip:{
