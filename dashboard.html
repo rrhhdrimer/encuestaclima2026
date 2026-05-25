@@ -432,7 +432,7 @@ function renderTablaJefes(jefes) {
   jefes.forEach(function(j, i) {
     const c = scoreColor(j.score);
     const bc = barColor(j.score);
-    html += '<tr style="cursor:pointer" onclick="window.open(\'detalle.html?tipo=jefe&nombre=\' + encodeURIComponent(j.nombre), \'_blank\')">' +
+    html += '<tr style="cursor:pointer" onclick="window.location.href = \'detalle.html?tipo=jefe&nombre=\' + encodeURIComponent(j.nombre)">' +
       '<td class="rank-num">' + (i+1) + '</td>' +
       '<td>' + j.nombre + '</td>' +
       '<td><span class="score-pill ' + c + '">' + j.score + '%</span></td>' +
@@ -499,7 +499,7 @@ function renderChartDims(dimScores) {
         if (elements.length > 0) {
           const idx = elements[0].index;
           const dim = Object.keys(DIMS)[idx];
-          window.open('detalle.html?tipo=dimension&nombre=' + encodeURIComponent(dim), '_blank');
+          window.location.href = 'detalle.html?tipo=dimension&nombre=' + encodeURIComponent(dim);
         }
       },
       plugins: {

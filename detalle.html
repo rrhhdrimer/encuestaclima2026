@@ -274,6 +274,7 @@ function renderDimension(allData) {
         '<div class="dist-pct">' + (pctDist > 0 ? pctDist+'%' : '') + '</div>' +
         '<div class="dist-bar-bg"><div class="dist-bar-fill" style="height:'+h+'%;background:'+ESC_COLORS[di]+'"></div></div>' +
         '<div class="dist-label">' + ESC_LABELS[di] + '</div>' +
+        '<div class="dist-label" style="color:var(--muted);margin-top:1px">(' + n + ')</div>' +
       '</div>';
     }).join('');
 
@@ -318,7 +319,7 @@ function renderDimension(allData) {
 }
 
 function renderJefe(allData) {
-  const rows = allData.filter(function(r){ return r.jefe === nombre; });
+  const rows = allData.filter(function(r){ return (r.jefe || '').trim() === nombre.trim(); });
   document.getElementById('topbar-title').textContent = 'Detalle · ' + nombre;
   document.title = 'Detalle · ' + nombre;
 
@@ -354,6 +355,7 @@ function renderJefe(allData) {
         '<div class="dist-pct">' + (pctDist > 0 ? pctDist+'%' : '') + '</div>' +
         '<div class="dist-bar-bg"><div class="dist-bar-fill" style="height:'+h+'%;background:'+ESC_COLORS[di]+'"></div></div>' +
         '<div class="dist-label">' + ESC_LABELS[di] + '</div>' +
+        '<div class="dist-label" style="color:var(--muted);margin-top:1px">(' + n + ')</div>' +
       '</div>';
     }).join('');
 
