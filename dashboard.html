@@ -410,6 +410,16 @@ function renderDashboard() {
       }).join('') +
     '</div>';
 
+    // Event listeners para ranking de jefes
+  setTimeout(function() {
+    document.querySelectorAll('.jefe-row').forEach(function(row) {
+      row.addEventListener('click', function() {
+        const nombre = this.getAttribute('data-jefe');
+        window.location.href = 'detalle.html?tipo=jefe&nombre=' + encodeURIComponent(nombre);
+      });
+    });
+  }, 100);
+
   // Renderizar charts
   setTimeout(function() {
     renderChartDims(dimScores);
@@ -432,7 +442,7 @@ function renderTablaJefes(jefes) {
   jefes.forEach(function(j, i) {
     const c = scoreColor(j.score);
     const bc = barColor(j.score);
-    html += '<tr style="cursor:pointer" onclick="window.location.href = \'detalle.html?tipo=jefe&nombre=\' + encodeURIComponent(j.nombre)">' +
+    html += '<tr class="jefe-row" style="cursor:pointer" data-jefe="' + j.nombre + '">' +
       '<td class="rank-num">' + (i+1) + '</td>' +
       '<td>' + j.nombre + '</td>' +
       '<td><span class="score-pill ' + c + '">' + j.score + '%</span></td>' +
