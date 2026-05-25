@@ -67,8 +67,10 @@
   .kpi-card.trust .kpi-value span{color:#384967;}
   .kpi-card.trust .kpi-sub{color:#384967;}
   .kpi-card.trust .kpi-badge{background:rgba(56,73,103,0.1);color:#384967;}
+  .kpi-card.trust .kpi-badge.gd{background:rgba(46,125,50,0.18);color:#1a5c1e;border:1px solid rgba(46,125,50,0.3);}
   .kpi-card.trust .kpi-badge.g{background:rgba(76,175,125,0.18);color:#2e7d32;border:1px solid rgba(76,175,125,0.3);}
   .kpi-card.trust .kpi-badge.y{background:rgba(232,184,75,0.18);color:#7a5c00;border:1px solid rgba(232,184,75,0.3);}
+  .kpi-card.trust .kpi-badge.o{background:rgba(224,122,42,0.18);color:#7a3a00;border:1px solid rgba(224,122,42,0.3);}
   .kpi-card.trust .kpi-badge.r{background:rgba(224,92,92,0.18);color:#8b1a1a;border:1px solid rgba(224,92,92,0.3);}
 
   .kpi-label{font-size:10px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:10px;}
@@ -76,9 +78,11 @@
   .kpi-value span{font-size:18px;font-weight:400;color:var(--muted);}
   .kpi-sub{font-size:11px;color:var(--muted);}
   .kpi-badge{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:600;padding:3px 8px;border-radius:100px;margin-top:8px;}
-  .kpi-badge.g{background:rgba(76,175,125,0.15);color:var(--green);}
-  .kpi-badge.y{background:rgba(232,184,75,0.15);color:var(--yellow);}
-  .kpi-badge.r{background:rgba(224,92,92,0.15);color:var(--red);}
+  .kpi-badge.gd{background:rgba(46,125,50,0.2);color:#2e7d32;}
+  .kpi-badge.g{background:rgba(76,175,125,0.15);color:#4caf7d;}
+  .kpi-badge.y{background:rgba(232,184,75,0.15);color:#e8b84b;}
+  .kpi-badge.o{background:rgba(224,122,42,0.15);color:#e07a2a;}
+  .kpi-badge.r{background:rgba(224,92,92,0.15);color:#e05c5c;}
 
   /* CHARTS GRID */
   .charts-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px;}
@@ -105,9 +109,11 @@
   .rank-bar-bg{background:rgba(182,207,208,0.1);border-radius:100px;height:6px;overflow:hidden;}
   .rank-bar-fill{height:100%;border-radius:100px;transition:width 0.8s ease;}
   .score-pill{display:inline-block;font-size:12px;font-weight:700;padding:3px 10px;border-radius:100px;}
-  .score-pill.g{background:rgba(76,175,125,0.15);color:var(--green);}
-  .score-pill.y{background:rgba(232,184,75,0.15);color:var(--yellow);}
-  .score-pill.r{background:rgba(224,92,92,0.15);color:var(--red);}
+  .score-pill.gd{background:rgba(46,125,50,0.2);color:#2e7d32;}
+  .score-pill.g{background:rgba(76,175,125,0.15);color:#4caf7d;}
+  .score-pill.y{background:rgba(232,184,75,0.15);color:#e8b84b;}
+  .score-pill.o{background:rgba(224,122,42,0.15);color:#e07a2a;}
+  .score-pill.r{background:rgba(224,92,92,0.15);color:#e05c5c;}
   .min-warning{font-size:10px;color:var(--muted);font-style:italic;}
 
   /* DIMENSION BARS */
@@ -241,14 +247,18 @@ let filteredData = [];
 const DIM_COLORS = ['#4C9FC8','#B6CFD0','#70b86a','#e8b84b'];
 
 function scoreColor(s) {
+  if (s >= 90) return 'gd';
   if (s >= 75) return 'g';
   if (s >= 60) return 'y';
+  if (s >= 45) return 'o';
   return 'r';
 }
 
 function barColor(s) {
+  if (s >= 90) return '#2e7d32';
   if (s >= 75) return '#4caf7d';
   if (s >= 60) return '#e8b84b';
+  if (s >= 45) return '#e07a2a';
   return '#e05c5c';
 }
 
@@ -492,16 +502,30 @@ function renderChartDims(dimScores) {
             title: function(c) {
               const keys = Object.keys(DIMS);
               const dim = DIMS[keys[c[0].dataIndex]];
-              return dim ? dim.sub : keys[c[0].dataIndex];
+              if (!dim) return '';
+              // Partir el subtítulo en líneas de máx 35 caracteres
+              const words = dim.sub.split(' ');
+              const lines = [];
+              let line = '';
+              words.forEach(function(w) {
+                if ((line + ' ' + w).trim().length > 35) {
+                  lines.push(line.trim());
+                  line = w;
+                } else {
+                  line = (line + ' ' + w).trim();
+                }
+              });
+              if (line) lines.push(line.trim());
+              return lines;
             },
             label: function() { return ''; }
           },
           bodyFont: {family:'Poppins', size:12},
           titleFont: {family:'Poppins', size:12},
           titleColor: '#DDE5ED',
-          maxWidth: 320,
-          padding: 12,
-          boxPadding: 4
+          padding: 14,
+          boxPadding: 4,
+          displayColors: false
         },
         datalabels: false
       },
