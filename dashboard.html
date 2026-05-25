@@ -243,6 +243,9 @@ const DIMS = {
 let allData = [];
 let filteredData = [];
 
+const MUJERES = new Set(["CLAUDIA MOGOLLON", "CRISTINA SAKATA", "EDITH VILLENA", "GISELA URIBE", "JEANETTE AGUIRRE", "KARIM GIL", "KARINA DURAND", "MARGOT PERALTA", "MARILÚ MATSUTAHARA", "MELODY ZAVALA", "PAOLA GOMEZ", "PATRICIA ENCINAS", "SILVANA SATO"]);
+function iconoJefe(nombre) { return MUJERES.has((nombre||'').toUpperCase()) ? '👩' : '👨'; }
+
 // Colores por dimensión
 const DIM_COLORS = ['#4C9FC8','#B6CFD0','#70b86a','#e8b84b'];
 
@@ -443,12 +446,13 @@ function kpiCard(label, value, unit, sub, color, hint, accent) {
 
 function renderTablaJefes(jefes) {
   if (!jefes.length) return '<div class="empty-icon" style="text-align:center;padding:24px;color:var(--muted);font-size:13px;">Aún no hay jefes con 5 o más respuestas</div>';
-  let html = '<table class="ranking-table"><thead><tr><th>#</th><th>Jefe inmediato</th><th>Score liderazgo</th><th>Barra</th><th>N° evaluaciones</th></tr></thead><tbody>';
+  let html = '<table class="ranking-table"><thead><tr><th>#</th><th></th><th>Jefe inmediato</th><th>Score liderazgo</th><th>Barra</th><th>N° evaluaciones</th></tr></thead><tbody>';
   jefes.forEach(function(j, i) {
     const c = scoreColor(j.score);
     const bc = barColor(j.score);
     html += '<tr class="jefe-row" style="cursor:pointer" data-jefe="' + j.nombre + '">' +
       '<td class="rank-num">' + (i+1) + '</td>' +
+      '<td style="font-size:16px;width:28px">' + iconoJefe(j.nombre) + '</td>' +
       '<td>' + j.nombre + '</td>' +
       '<td><span class="score-pill ' + c + '">' + j.score + '%</span></td>' +
       '<td class="rank-bar-wrap">' +

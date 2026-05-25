@@ -205,6 +205,9 @@ const params = new URLSearchParams(window.location.search);
 const tipo  = params.get('tipo');  // 'dimension' o 'jefe'
 const nombre = decodeURIComponent(params.get('nombre') || '');
 
+const MUJERES = new Set(["CLAUDIA MOGOLLON", "CRISTINA SAKATA", "EDITH VILLENA", "GISELA URIBE", "JEANETTE AGUIRRE", "KARIM GIL", "KARINA DURAND", "MARGOT PERALTA", "MARILÚ MATSUTAHARA", "MELODY ZAVALA", "PAOLA GOMEZ", "PATRICIA ENCINAS", "SILVANA SATO"]);
+function iconoJefe(nombre) { return MUJERES.has((nombre||'').toUpperCase()) ? '👩' : '👨'; }
+
 async function cargarDatos() {
   try {
     const res = await fetch(APPS_SCRIPT_URL);
@@ -377,7 +380,7 @@ function renderJefe(allData) {
 
   document.getElementById('content').innerHTML =
     '<div class="hero">' +
-      '<div class="hero-icon">🙋</div>' +
+      '<div class="hero-icon">' + iconoJefe(nombre) + '</div>' +
       '<div>' +
         '<div class="hero-eyebrow">Detalle de liderazgo</div>' +
         '<div class="hero-title">' + nombre + '</div>' +
