@@ -67,6 +67,9 @@
   .kpi-card.trust .kpi-value span{color:#384967;}
   .kpi-card.trust .kpi-sub{color:#384967;}
   .kpi-card.trust .kpi-badge{background:rgba(56,73,103,0.1);color:#384967;}
+  .kpi-card.trust .kpi-badge.g{background:rgba(76,175,125,0.18);color:#2e7d32;border:1px solid rgba(76,175,125,0.3);}
+  .kpi-card.trust .kpi-badge.y{background:rgba(232,184,75,0.18);color:#7a5c00;border:1px solid rgba(232,184,75,0.3);}
+  .kpi-card.trust .kpi-badge.r{background:rgba(224,92,92,0.18);color:#8b1a1a;border:1px solid rgba(224,92,92,0.3);}
 
   .kpi-label{font-size:10px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:10px;}
   .kpi-value{font-size:38px;font-weight:700;color:#fff;line-height:1;margin-bottom:6px;}
@@ -370,8 +373,8 @@ function renderDashboard() {
         '<div class="kpi-grid">' +
           kpiCard('Trust Index Global', trust, '%', scoreLabel(trust), scoreColor(trust), 'Porcentaje de respuestas favorables (4-5)', 'trust') +
           kpiCard('Participantes', filteredData.length, '', '', 'blue', 'Respuestas recibidas', 'blue') +
-          kpiCard('Mejor dimensión', Math.max(...Object.values(dimScores)), '%', Object.keys(dimScores).find(function(k){return dimScores[k]===Math.max(...Object.values(dimScores));}), scoreColor(Math.max(...Object.values(dimScores))), '', 'green') +
-          kpiCard('Dimensión crítica', Math.min(...Object.values(dimScores)), '%', Object.keys(dimScores).find(function(k){return dimScores[k]===Math.min(...Object.values(dimScores));}), scoreColor(Math.min(...Object.values(dimScores))), '', 'red') +
+          kpiCard('Dimensión más alta', Math.max(...Object.values(dimScores)), '%', Object.keys(dimScores).find(function(k){return dimScores[k]===Math.max(...Object.values(dimScores));}), scoreColor(Math.max(...Object.values(dimScores))), '', 'green') +
+          kpiCard('Dimensión más baja', Math.min(...Object.values(dimScores)), '%', Object.keys(dimScores).find(function(k){return dimScores[k]===Math.min(...Object.values(dimScores));}), scoreColor(Math.min(...Object.values(dimScores))), '', 'red') +
         '</div>' +
       '</div>' +
       renderSemaforo() +
@@ -379,7 +382,7 @@ function renderDashboard() {
 
     // Dimensiones + Gerencias
     '<div class="charts-grid">' +
-      '<div class="chart-card"><div class="chart-title">Score por dimensión</div><div class="chart-sub">Porcentaje de respuestas favorables por cada dimensión GPTW</div><div class="chart-wrap"><canvas id="chart-dims"></canvas></div></div>' +
+      '<div class="chart-card"><div class="chart-title">Score por dimensión</div><div class="chart-sub">Porcentaje de respuestas favorables por cada dimensión GPTW</div><div class="chart-wrap" style="height:280px"><canvas id="chart-dims"></canvas></div></div>' +
       '<div class="chart-card"><div class="chart-title">Score por gerencia</div><div class="chart-sub">Trust Index comparativo entre gerencias</div><div class="chart-wrap"><canvas id="chart-ger"></canvas></div></div>' +
     '</div>' +
 
@@ -423,7 +426,13 @@ function renderTablaJefes(jefes) {
       '<td class="rank-num">' + (i+1) + '</td>' +
       '<td>' + j.nombre + '</td>' +
       '<td><span class="score-pill ' + c + '">' + j.score + '%</span></td>' +
-      '<td class="rank-bar-wrap"><div class="rank-bar-bg"><div class="rank-bar-fill" style="width:' + j.score + '%;background:' + bc + '"></div></div></td>' +
+      '<td class="rank-bar-wrap">' +
+        '<div style="display:flex;align-items:center;gap:6px;">' +
+          '<span style="font-size:10px;color:var(--muted);min-width:14px;text-align:right">0</span>' +
+          '<div class="rank-bar-bg" style="flex:1"><div class="rank-bar-fill" style="width:' + j.score + '%;background:' + bc + '"></div></div>' +
+          '<span style="font-size:10px;color:var(--muted);min-width:24px">100</span>' +
+        '</div>' +
+      '</td>' +
       '<td style="color:var(--muted);font-size:12px">' + j.n + ' resp.</td>' +
     '</tr>';
   });
@@ -478,18 +487,42 @@ function renderChartDims(dimScores) {
       layout: {padding: {top: 24}},
       plugins: {
         legend:{display:false},
-        tooltip:{callbacks:{
-          title: function(c) {
-            const keys = Object.keys(DIMS);
-            const dim = DIMS[keys[c[0].dataIndex]];
-            return dim ? dim.sub : keys[c[0].dataIndex];
+        tooltip:{
+          callbacks:{
+            title: function(c) {
+              const keys = Object.keys(DIMS);
+              const dim = DIMS[keys[c[0].dataIndex]];
+              return dim ? dim.sub : keys[c[0].dataIndex];
+            },
+            label: function() { return ''; }
           },
-          label: function() { return ''; }
-        }},
+          bodyFont: {family:'Poppins', size:12},
+          titleFont: {family:'Poppins', size:12},
+          titleColor: '#DDE5ED',
+          maxWidth: 320,
+          padding: 12,
+          boxPadding: 4
+        },
         datalabels: false
       },
       scales: {
-        x: {grid:{color:'rgba(182,207,208,0.06)'},ticks:{color:'#B6CFD0',font:{size:11,family:'Poppins'}}},
+        x: {
+          grid:{color:'rgba(182,207,208,0.06)'},
+          ticks:{
+            color:'#B6CFD0',
+            font:{size:11,family:'Poppins'},
+            maxRotation: 0,
+            minRotation: 0,
+            callback: function(val, index) {
+              const label = this.getLabelForValue(val);
+              // Partir en palabras para multilínea
+              const words = label.split(' ');
+              if (words.length <= 2) return label;
+              const mid = Math.ceil(words.length / 2);
+              return [words.slice(0, mid).join(' '), words.slice(mid).join(' ')];
+            }
+          }
+        },
         y: {min:0,max:100,grid:{color:'rgba(182,207,208,0.06)'},ticks:{color:'#B6CFD0',font:{size:11,family:'Poppins'},callback:function(v){return v+'%';}}}
       },
       animation: {onComplete: function(anim) {
