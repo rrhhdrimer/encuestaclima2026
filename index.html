@@ -139,6 +139,14 @@
   .check-ring{width:68px;height:68px;border:2px solid var(--sage);border-radius:50%;display:flex;align-items:center;justify-content:center;}
   .check-ring svg{width:30px;height:30px;fill:none;stroke:var(--sage);stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;}
 
+  .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;}
+  @media(max-width:760px){.grid3{grid-template-columns:1fr;}}
+  .jefe-picker{background:#eef3f7;border:1.5px solid rgba(56,73,103,0.14);border-radius:var(--r);padding:22px;margin-bottom:24px;}
+  .jp-title{font-size:14px;font-weight:700;color:var(--txt);margin-bottom:16px;}
+  .jp-confirm{margin-top:16px;padding:12px 16px;border-radius:10px;background:#dce7f1;border:1px solid rgba(56,73,103,0.18);font-size:12.5px;color:var(--txt);display:none;}
+  .jp-confirm.on{display:block;}
+  .jp-confirm b{color:var(--surface);font-weight:700;}
+
   /* OPCION MULTIPLE (Cultura #ModoDrimer) */
   .opts{display:flex;flex-direction:column;gap:8px;}
   .opts input[type=radio]{display:none;}
@@ -189,7 +197,7 @@
       <div class="eyebrow">Paso 1 de 6</div>
       <div class="step-card">
         <div class="sc-icon">🧑</div>
-        <div><div class="sc-title">Datos de perfil</div><div class="sc-sub">Datos generales para analizar resultados globales. No permite identificarte.</div></div>
+        <div><div class="sc-title">Datos de perfil</div><div class="sc-sub">Tu gerencia, tu área y tu empresa. Sirven para analizar resultados globales y no permiten identificarte.</div></div>
       </div>
       <div class="grid2">
         <div class="field">
@@ -208,10 +216,6 @@
             <option>SERVICE STAR S.A.C.</option>
           </select>
         </div>
-        <div class="field">
-          <label>Jefe inmediato <span class="req">*</span></label>
-          <select id="sel-j" disabled required><option value="">— Selecciona área primero —</option></select>
-        </div>
       </div>
     </div>
 
@@ -219,8 +223,28 @@
       <div class="eyebrow">Paso 2 de 6 · Preguntas 1 – 20</div>
       <div class="step-card">
         <div class="sc-icon">🙋</div>
-        <div><div class="sc-title">Liderazgo</div><div class="sc-sub">¿Cómo te sientes respecto a la persona que seleccionaste como tu jefe inmediato?</div></div>
+        <div><div class="sc-title">Liderazgo</div><div class="sc-sub">Primero ubica a tu jefe inmediato. Luego responde las 20 preguntas pensando en esa persona.</div></div>
       </div>
+
+      <div class="jefe-picker">
+        <div class="jp-title">¿A quién vas a evaluar?</div>
+        <div class="grid3">
+          <div class="field">
+            <label>Gerencia de tu jefe <span class="req">*</span></label>
+            <select id="sel-jg" required><option value="">— Selecciona —</option></select>
+          </div>
+          <div class="field">
+            <label>Área de tu jefe <span class="req">*</span></label>
+            <select id="sel-ja" disabled required><option value="">— Selecciona gerencia primero —</option></select>
+          </div>
+          <div class="field">
+            <label>Tu jefe inmediato <span class="req">*</span></label>
+            <select id="sel-j" disabled required><option value="">— Selecciona área primero —</option></select>
+          </div>
+        </div>
+        <div class="jp-confirm" id="jp-confirm"></div>
+      </div>
+
       <div id="pjefe"></div>
     </div>
 
@@ -335,7 +359,7 @@ const PQ = {
     "Cuando veo lo que logramos en equipo, me siento orgulloso."
   ],
   camaraderia: [
-    "Aquí hay un sentimiento de familia o equipo.",
+    "Aquí hay un sentimiento de equipo.",
     "Cuando ingresas a la empresa se te hace sentir bienvenido.",
     "Me dan los recursos, herramientas y equipos para hacer bien mi trabajo.",
     "Aquí se fomenta que las personas equilibren su vida de trabajo y vida personal/familiar.",
@@ -389,24 +413,32 @@ async function cargarEstructura() {
       if (!estructura[g][a]) estructura[g][a] = [];
       if (estructura[g][a].indexOf(j) === -1) estructura[g][a].push(j);
     });
+    const gerencias = Object.keys(estructura).sort();
+
+    // Gerencia del evaluador (Paso 1)
     const sg = document.getElementById('sel-g');
-    Object.keys(estructura).sort().forEach(function(g) {
+    gerencias.forEach(function(g) {
       const o = document.createElement('option');
       o.value = g; o.textContent = g; sg.appendChild(o);
+    });
+
+    // Gerencia del jefe (Paso 2) — lista completa, sin filtrar por la del evaluador
+    const sjg = document.getElementById('sel-jg');
+    gerencias.forEach(function(g) {
+      const o = document.createElement('option');
+      o.value = g; o.textContent = g; sjg.appendChild(o);
     });
   } catch(e) {
     console.warn('Error cargando estructura:', e);
   }
 }
 
+// --- PASO 1: gerencia y area DEL EVALUADOR (esto si se guarda) ---
 document.getElementById('sel-g').addEventListener('change', function() {
   const g = this.value;
   const sa = document.getElementById('sel-a');
-  const sj = document.getElementById('sel-j');
-  sa.innerHTML = '<option value="">— Selecciona tu area —</option>';
-  sj.innerHTML = '<option value="">— Selecciona area primero —</option>';
-  sj.disabled = true;
-  if (!g) { sa.disabled = true; return; }
+  sa.innerHTML = '<option value="">— Selecciona tu área —</option>';
+  if (!g) { sa.disabled = true; upProg(); return; }
   sa.disabled = false;
   Object.keys(estructura[g] || {}).sort().forEach(function(a) {
     const o = document.createElement('option');
@@ -415,23 +447,60 @@ document.getElementById('sel-g').addEventListener('change', function() {
   upProg();
 });
 
-document.getElementById('sel-a').addEventListener('change', function() {
-  const g = document.getElementById('sel-g').value;
+document.getElementById('sel-a').addEventListener('change', upProg);
+document.getElementById('sel-e').addEventListener('change', upProg);
+
+// --- PASO 2: ubicar al JEFE. Solo el nombre (sel-j) viaja al Sheet. ---
+document.getElementById('sel-jg').addEventListener('change', function() {
+  const g = this.value;
+  const sja = document.getElementById('sel-ja');
+  const sj  = document.getElementById('sel-j');
+  sja.innerHTML = '<option value="">— Selecciona el área —</option>';
+  sj.innerHTML  = '<option value="">— Selecciona área primero —</option>';
+  sj.disabled = true;
+  confirmarJefe();
+  if (!g) { sja.disabled = true; upProg(); return; }
+  sja.disabled = false;
+  Object.keys(estructura[g] || {}).sort().forEach(function(a) {
+    const o = document.createElement('option');
+    o.value = a; o.textContent = a; sja.appendChild(o);
+  });
+  upProg();
+});
+
+document.getElementById('sel-ja').addEventListener('change', function() {
+  const g = document.getElementById('sel-jg').value;
   const a = this.value;
   const sj = document.getElementById('sel-j');
   sj.innerHTML = '<option value="">— Selecciona tu jefe inmediato —</option>';
-  if (!a) { sj.disabled = true; return; }
+  confirmarJefe();
+  if (!a) { sj.disabled = true; upProg(); return; }
   sj.disabled = false;
   const jefes = (estructura[g] && estructura[g][a]) ? estructura[g][a] : [];
-  jefes.sort().forEach(function(j) {
+  jefes.slice().sort().forEach(function(j) {
     const o = document.createElement('option');
     o.value = j; o.textContent = j; sj.appendChild(o);
   });
   upProg();
 });
 
-document.getElementById('sel-e').addEventListener('change', upProg);
-document.getElementById('sel-j').addEventListener('change', upProg);
+document.getElementById('sel-j').addEventListener('change', function() {
+  confirmarJefe();
+  upProg();
+});
+
+// Confirmacion visible de a quien se esta evaluando
+function confirmarJefe() {
+  const nombre = document.getElementById('sel-j').value;
+  const box = document.getElementById('jp-confirm');
+  if (nombre) {
+    box.innerHTML = 'Vas a responder las 20 preguntas de liderazgo pensando en <b>' + nombre + '</b>.';
+    box.classList.add('on');
+  } else {
+    box.innerHTML = '';
+    box.classList.remove('on');
+  }
+}
 
 function renderQ(lista, cid, off) {
   const cont = document.getElementById(cid);
@@ -521,7 +590,7 @@ function upProg() {
 document.getElementById('frm').addEventListener('submit', async function(e) {
   e.preventDefault();
   var ok = true, first = null;
-  ['sel-g','sel-a','sel-e','sel-j'].forEach(function(id) {
+  ['sel-g','sel-a','sel-e','sel-jg','sel-ja','sel-j'].forEach(function(id) {
     const el = document.getElementById(id);
     if (!el.value) { el.classList.add('err'); ok = false; if (!first) first = el; }
     else el.classList.remove('err');
