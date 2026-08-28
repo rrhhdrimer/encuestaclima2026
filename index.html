@@ -139,6 +139,16 @@
   .check-ring{width:68px;height:68px;border:2px solid var(--sage);border-radius:50%;display:flex;align-items:center;justify-content:center;}
   .check-ring svg{width:30px;height:30px;fill:none;stroke:var(--sage);stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;}
 
+  /* OPCION MULTIPLE (Cultura #ModoDrimer) */
+  .opts{display:flex;flex-direction:column;gap:8px;}
+  .opts input[type=radio]{display:none;}
+  .opts label{display:flex;align-items:center;gap:11px;padding:12px 14px;background:#f2f5f8;border:1.5px solid rgba(56,73,103,0.10);border-radius:10px;cursor:pointer;font-size:12.5px;color:var(--txt);line-height:1.45;transition:all 0.15s;}
+  .opts label .ol{flex-shrink:0;width:23px;height:23px;border-radius:50%;background:#fff;border:1.5px solid rgba(56,73,103,0.22);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--txt-dim);transition:all 0.15s;}
+  .opts label:hover{background:#e9eff5;border-color:rgba(56,73,103,0.28);}
+  .opts input[type=radio]:checked+label{background:#dce7f1;border-color:var(--surface);}
+  .opts input[type=radio]:checked+label .ol{background:var(--surface);border-color:var(--surface);color:#fff;}
+  .qnote{font-size:10.5px;color:var(--txt-dim);margin-top:10px;}
+
   @media(max-width:520px){
     .card{padding:22px 16px;}
     .header-body{padding:28px 20px 22px;flex-direction:column;}
@@ -176,7 +186,7 @@
   <form id="frm" novalidate>
 
     <div class="card">
-      <div class="eyebrow">Paso 1 de 5</div>
+      <div class="eyebrow">Paso 1 de 6</div>
       <div class="step-card">
         <div class="sc-icon">🧑</div>
         <div><div class="sc-title">Datos de perfil</div><div class="sc-sub">Datos generales para analizar resultados globales. No permite identificarte.</div></div>
@@ -206,7 +216,7 @@
     </div>
 
     <div class="card">
-      <div class="eyebrow">Paso 2 de 5 · Preguntas 1 – 20</div>
+      <div class="eyebrow">Paso 2 de 6 · Preguntas 1 – 20</div>
       <div class="step-card">
         <div class="sc-icon">🙋</div>
         <div><div class="sc-title">Liderazgo</div><div class="sc-sub">¿Cómo te sientes respecto a la persona que seleccionaste como tu jefe inmediato?</div></div>
@@ -215,30 +225,39 @@
     </div>
 
     <div class="card">
-      <div class="eyebrow">Paso 3 de 5 · Preguntas 21 – 29</div>
+      <div class="eyebrow">Paso 3 de 6 · Preguntas 21 – 26</div>
       <div class="step-card">
         <div class="sc-icon">⚖️</div>
-        <div><div class="sc-title">Imparcialidad y equidad</div><div class="sc-sub">¿Cómo te sientes respecto al trato justo dentro de la organización?</div></div>
+        <div><div class="sc-title">Imparcialidad</div><div class="sc-sub">¿Cómo te sientes respecto al trato justo dentro de la organización?</div></div>
       </div>
       <div id="pimpar"></div>
     </div>
 
     <div class="card">
-      <div class="eyebrow">Paso 4 de 5 · Preguntas 30 – 38</div>
+      <div class="eyebrow">Paso 4 de 6 · Preguntas 27 – 38</div>
       <div class="step-card">
         <div class="sc-icon">🏆</div>
-        <div><div class="sc-title">Orgullo e identidad</div><div class="sc-sub">¿Qué tanto te sientes identificado con la empresa?</div></div>
+        <div><div class="sc-title">Orgullo</div><div class="sc-sub">¿Qué tanto te sientes identificado con la empresa?</div></div>
       </div>
       <div id="porgullo"></div>
     </div>
 
     <div class="card">
-      <div class="eyebrow">Paso 5 de 5 · Preguntas 39 – 60</div>
+      <div class="eyebrow">Paso 5 de 6 · Preguntas 39 – 52</div>
       <div class="step-card">
         <div class="sc-icon">🤝</div>
-        <div><div class="sc-title">Empresa y camaradería</div><div class="sc-sub">¿Cómo te sientes respecto a los recursos, ambiente laboral, beneficios y la relación con tus compañeros?</div></div>
+        <div><div class="sc-title">Camaradería</div><div class="sc-sub">¿Cómo te sientes respecto a los recursos, ambiente laboral, beneficios y la relación con tus compañeros?</div></div>
       </div>
       <div id="pempresa"></div>
+    </div>
+
+    <div class="card">
+      <div class="eyebrow">Paso 6 de 6 · Preguntas 53 – 60</div>
+      <div class="step-card">
+        <div class="sc-icon">🦫</div>
+        <div><div class="sc-title">Cultura #ModoDrimer</div><div class="sc-sub">¿Qué tanto conoces la cultura de Drimer? Estas preguntas tienen una respuesta correcta. Si no la sabes, marca “No sé”: es una respuesta válida y útil.</div></div>
+      </div>
+      <div id="pcultura"></div>
     </div>
 
     <div class="submit-wrap">
@@ -268,76 +287,82 @@
 const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw73i0Y6g7Hk5VAcDAU8IHFw5kW1RMskfQXmvudHDsxqwcU1hge8QWn2TXASAiJVs8VGw/exec';
 const SHEETS_ID = '1IT_sRqzsuMteZ9rNdHGM95uH605CO2VlBPQd17hMQaw';
 
+const SHUFFLE_CULTURA = true;   // rota las 3 opciones de contenido; "No se" queda siempre al final
+
 const PQ = {
-  jefe: [
+  liderazgo: [
     "Mi jefe inmediato comunica de forma clara lo que se espera de mi trabajo.",
-    "Mi jefe inmediato tiene las competencias o habilidades idoneas para su trabajo.",
+    "Mi jefe inmediato tiene las competencias o habilidades idóneas para su trabajo.",
     "Mi jefe inmediato me mantiene informado sobre asuntos y cambios importantes en el trabajo.",
-    "Mi jefe inmediato tiene una vision clara de hacia donde va la organizacion y que hacer para lograrlo.",
-    "Mi jefe inmediato hace un buen trabajo en la asignacion de labores y coordinacion con las personas.",
-    "Mi jefe inmediato confia en que las personas haran un buen trabajo sin tener que estar controlandonos.",
-    "Mi jefe inmediato es accesible. Es facil hablar con el.",
+    "Mi jefe inmediato tiene una visión clara de hacia dónde va la organización y qué hacer para lograrlo.",
+    "Mi jefe inmediato hace un buen trabajo en la asignación de labores y coordinación con las personas.",
+    "Mi jefe inmediato confía en que las personas harán un buen trabajo sin tener que estar controlándonos.",
+    "Mi jefe inmediato es accesible. Es fácil hablar con él.",
     "Mi jefe inmediato trata a todos por igual.",
-    "Mi jefe inmediato conduce el trabajo de manera etica y honesta.",
+    "Mi jefe inmediato conduce el trabajo de manera ética y honesta.",
     "Mi jefe inmediato cumple sus acuerdos y compromisos.",
     "Mi jefe inmediato es consecuente. Sus palabras coinciden con sus acciones.",
-    "Mi jefe inmediato me brinda orientacion y guia cuando lo necesito.",
+    "Mi jefe inmediato me brinda orientación y guía cuando lo necesito.",
     "Mi jefe inmediato me brinda aprecio y reconocimiento por el buen trabajo y por el esfuerzo extra.",
-    "Mi jefe inmediato demuestra un interes en mi como persona, no solo como trabajador.",
+    "Mi jefe inmediato demuestra un interés en mí como persona, no sólo como trabajador.",
     "Puedo hacer cualquier pregunta razonable a mi jefe inmediato y recibir una respuesta directa.",
     "Mi jefe inmediato motiva y responde de forma sincera a nuestras ideas y sugerencias.",
     "Mi jefe inmediato reconoce que pueden cometerse errores involuntarios en el trabajo.",
-    "Mi jefe inmediato habla conmigo de forma periodica sobre la calidad de mi trabajo y como podria mejorar.",
+    "Mi jefe inmediato habla conmigo de forma periódica sobre la calidad de mi trabajo y cómo podría mejorar.",
     "Mi jefe inmediato se preocupa por mi desarrollo o crecimiento profesional.",
     "Mi jefe inmediato involucra a los trabajadores en decisiones relacionadas a su trabajo o a su ambiente de trabajo."
   ],
-  impar: [
-    "Los trabajadores son tratados de manera justa sin importar su edad.",
-    "Los trabajadores son tratados de manera justa sin importar su condicion socioeconomica.",
-    "Los trabajadores son tratados de manera justa sin importar su sexo.",
-    "Los trabajadores son tratados de manera justa sin importar su orientacion sexual.",
-    "Los ascensos y oportunidades de crecimiento se les da a quienes mas se lo merecen.",
+  imparcialidad: [
+    "Los trabajadores son tratados de manera justa sin importar su edad, sexo, condición socioeconómica u orientación sexual.",
+    "Los ascensos y oportunidades de crecimiento se les da a quienes más se lo merecen.",
     "Todos tenemos la oportunidad de recibir un reconocimiento especial.",
-    "A los trabajadores aqui se les paga acorde por el trabajo que hacen.",
+    "A los trabajadores aquí se les paga acorde por el trabajo que hacen.",
     "Siento que recibo una parte justa de las ganancias que obtiene la empresa.",
-    "Si considero que se me ha tratado injustamente, se que tendria la oportunidad de ser escuchado y que se me tratara con justicia."
+    "Si considero que se me ha tratado injustamente, sé que tendría la oportunidad de ser escuchado y que se me tratará con justicia."
   ],
   orgullo: [
-    "Siento que mi participacion es importante y que hace una diferencia en esta empresa.",
+    "Siento que mi participación es importante y que hace una diferencia en esta empresa.",
     "Puedo ser yo mismo en mi lugar de trabajo.",
-    "Aqui hay un sentimiento de familia o equipo.",
     "Considero que voy a poder satisfacer mis expectativas profesionales en esta empresa.",
     "Tengo confianza en las decisiones que toma la alta gerencia.",
     "Estoy dispuesto a hacer un esfuerzo extra por hacer bien mi trabajo.",
-    "Estoy orgulloso de decir a otros que trabajo aqui.",
-    "Quiero trabajar aqui por mucho tiempo.",
-    "Trabajar en este lugar tiene un significado especial para mi: este no es solo un trabajo."
+    "Estoy orgulloso de decir a otros que trabajo aquí.",
+    "Quiero trabajar aquí por mucho tiempo.",
+    "Trabajar en este lugar tiene un significado especial para mí: este no es solo un trabajo.",
+    "Yo diría que esta es una gran empresa para trabajar.",
+    "Se me brinda capacitación y/o entrenamiento con el objetivo de promover mi desarrollo profesional.",
+    "Creo que aquí harían todo lo posible antes de tener que hacer una reducción de personal.",
+    "Cuando veo lo que logramos en equipo, me siento orgulloso."
   ],
-  empresa: [
-    "Yo diria que esta es una gran empresa para trabajar.",
+  camaraderia: [
+    "Aquí hay un sentimiento de familia o equipo.",
     "Cuando ingresas a la empresa se te hace sentir bienvenido.",
     "Me dan los recursos, herramientas y equipos para hacer bien mi trabajo.",
-    "Se me brinda capacitacion y/o entrenamiento con el objetivo de promover mi desarrollo profesional.",
-    "La infraestructura e instalaciones de la empresa contribuyen a crear un agradable ambiente de trabajo.",
-    "Puedo solicitar tiempo libre o permisos personales, de forma coordinada, para atender asuntos de importancia.",
-    "Aqui se fomenta que las personas equilibren su vida de trabajo y vida personal/familiar.",
-    "Este es un lugar fisicamente seguro donde trabajar.",
-    "Este es un lugar psicologica y emocionalmente saludable donde trabajar.",
+    "Aquí se fomenta que las personas equilibren su vida de trabajo y vida personal/familiar.",
+    "Este es un lugar físicamente seguro donde trabajar.",
+    "Este es un lugar psicológica y emocionalmente saludable donde trabajar.",
+    "Tenemos beneficios especiales y únicos (no solo económicos).",
     "Este es un lugar acogedor y amigable para trabajar.",
-    "A las personas les gusta venir a trabajar.",
-    "Aqui se celebran eventos especiales.",
-    "Tenemos beneficios especiales y unicos (no solo economicos).",
-    "Creo que aqui harian todo lo posible antes de tener que hacer una reduccion de personal.",
-    "Siento que los equipos estan organizados y estructurados de manera efectiva.",
+    "Aquí se celebran eventos especiales.",
     "Todos conocemos los objetivos organizacionales y trabajamos en equipo para alcanzarlos.",
-    "Los trabajadores evitan la manipulacion y los rumores para conseguir sus objetivos.",
-    "Los trabajadores aqui se preocupan por sus companeros.",
-    "Puedo contar con la colaboracion de mis companeros.",
-    "Siento que estamos todos juntos en esto.",
-    "Mi equipo de trabajo recibe el apoyo adecuado de las areas de soporte con las que interactua.",
-    "Cuando veo lo que logramos en equipo, me siento orgulloso."
+    "Los trabajadores evitan la manipulación y los rumores para conseguir sus objetivos.",
+    "Los trabajadores aquí se preocupan por sus compañeros.",
+    "Puedo contar con la colaboración de mis compañeros.",
+    "Siento que estamos todos juntos en esto."
   ]
 };
+
+// Cultura #ModoDrimer: opcion multiple. Se guarda 1 (acierto) o 0 (error / No se).
+const CULTURA = [
+  {t:"¿Cómo se llama la cultura organizacional de Drimer?", ops:["#ModoDrimer", "Espíritu Drimer", "Cultura Continental"], correcta:0, nose:"No sé"},
+  {t:"¿Cuántos valores tiene el #ModoDrimer?", ops:["3", "4", "6"], correcta:1, nose:"No sé", fijo:true},
+  {t:"¿Cuál de estas NO es uno de los 4 valores del #ModoDrimer?", ops:["Compromiso", "Austeridad", "Innovación"], correcta:1, nose:"No sé"},
+  {t:"¿Cuál de estas frases corresponde a un valor del #ModoDrimer?", ops:["“Damos la milla extra, siempre”", "“El cliente siempre tiene la razón”", "“Primero la empresa, después el equipo”"], correcta:0, nose:"No sé"},
+  {t:"¿Qué es el #ModoDrimer?", ops:["Vivir los 4 valores", "Un manual de procedimientos", "Un bono mensual"], correcta:0, nose:"No sé"},
+  {t:"¿Qué representa TEO en la cultura de Drimer?", ops:["La mascota que representa el #ModoDrimer", "Un proveedor externo de la empresa", "El nombre del área de Talento Humano"], correcta:0, nose:"No conozco a TEO"},
+  {t:"¿Cuál de estas actitudes se considera un ANTIVALOR en Drimer?", ops:["“No es mi área, no me toca”", "“Doy la milla extra”", "“Busco mejorar procesos”"], correcta:0, nose:"No sé"},
+  {t:"¿Cómo se llama el mecanismo con el que los líderes reconocen públicamente el #ModoDrimer?", ops:["Tarjetas de Reconocimiento", "Bono de productividad", "Carta de felicitación"], correcta:0, nose:"No sé"}
+];
 
 const ESC = [
   {v:1,l:'Nunca'},
@@ -437,6 +462,50 @@ function renderQ(lista, cid, off) {
   });
 }
 
+function renderCultura() {
+  const cont = document.getElementById('pcultura');
+  const LETRAS = ['a','b','c','d'];
+  CULTURA.forEach(function(q, i) {
+    const n = 53 + i;
+
+    // Opciones de contenido (+ "No se" siempre al final)
+    var ops = q.ops.map(function(txt, oi) { return {txt: txt, ok: oi === q.correcta}; });
+    if (SHUFFLE_CULTURA && !q.fijo) {
+      for (var k = ops.length - 1; k > 0; k--) {
+        var r = Math.floor(Math.random() * (k + 1));
+        var tmp = ops[k]; ops[k] = ops[r]; ops[r] = tmp;
+      }
+    }
+    ops.push({txt: q.nose, ok: false});
+
+    const d = document.createElement('div');
+    d.className = 'qblock';
+    d.id = 'q' + n;
+
+    var radios = '';
+    ops.forEach(function(o, oi) {
+      radios += '<input type="radio" name="p' + n + '" id="p' + n + 'o' + oi + '" value="' + (o.ok ? 1 : 0) + '">';
+      radios += '<label for="p' + n + 'o' + oi + '"><span class="ol">' + LETRAS[oi] + '</span><span>' + o.txt + '</span></label>';
+    });
+
+    d.innerHTML =
+      '<div class="qnum">Pregunta ' + n + ' de 60</div>' +
+      '<div class="qtext">' + q.t + '</div>' +
+      '<div class="opts">' + radios + '</div>' +
+      '<div class="qnote">Selecciona una sola opcion.</div>' +
+      '<div class="errhint">Selecciona una respuesta para continuar.</div>';
+
+    d.querySelectorAll('input').forEach(function(r) {
+      r.addEventListener('change', function() {
+        d.classList.add('answered');
+        d.classList.remove('error');
+        upProg();
+      });
+    });
+    cont.appendChild(d);
+  });
+}
+
 function upProg() {
   var done = 0;
   ['sel-g','sel-a','sel-e','sel-j'].forEach(function(id) {
@@ -490,10 +559,11 @@ document.getElementById('frm').addEventListener('submit', async function(e) {
   }
 });
 
-renderQ(PQ.jefe,    'pjefe',    0);
-renderQ(PQ.impar,   'pimpar',   20);
-renderQ(PQ.orgullo, 'porgullo', 29);
-renderQ(PQ.empresa, 'pempresa', 38);
+renderQ(PQ.liderazgo,     'pjefe',     0);
+renderQ(PQ.imparcialidad, 'pimpar',    20);
+renderQ(PQ.orgullo,       'porgullo',  26);
+renderQ(PQ.camaraderia,   'pempresa',  38);
+renderCultura();
 cargarEstructura();
 </script>
 </body>

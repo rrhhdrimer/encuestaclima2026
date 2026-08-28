@@ -140,81 +140,84 @@
 const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw73i0Y6g7Hk5VAcDAU8IHFw5kW1RMskfQXmvudHDsxqwcU1hge8QWn2TXASAiJVs8VGw/exec';
 
 const PREGUNTAS = {
-  jefe: [
+  liderazgo: [
     "Mi jefe inmediato comunica de forma clara lo que se espera de mi trabajo.",
-    "Mi jefe inmediato tiene las competencias o habilidades idoneas para su trabajo.",
+    "Mi jefe inmediato tiene las competencias o habilidades idóneas para su trabajo.",
     "Mi jefe inmediato me mantiene informado sobre asuntos y cambios importantes en el trabajo.",
-    "Mi jefe inmediato tiene una vision clara de hacia donde va la organizacion y que hacer para lograrlo.",
-    "Mi jefe inmediato hace un buen trabajo en la asignacion de labores y coordinacion con las personas.",
-    "Mi jefe inmediato confia en que las personas haran un buen trabajo sin tener que estar controlandonos.",
-    "Mi jefe inmediato es accesible. Es facil hablar con el.",
+    "Mi jefe inmediato tiene una visión clara de hacia dónde va la organización y qué hacer para lograrlo.",
+    "Mi jefe inmediato hace un buen trabajo en la asignación de labores y coordinación con las personas.",
+    "Mi jefe inmediato confía en que las personas harán un buen trabajo sin tener que estar controlándonos.",
+    "Mi jefe inmediato es accesible. Es fácil hablar con él.",
     "Mi jefe inmediato trata a todos por igual.",
-    "Mi jefe inmediato conduce el trabajo de manera etica y honesta.",
+    "Mi jefe inmediato conduce el trabajo de manera ética y honesta.",
     "Mi jefe inmediato cumple sus acuerdos y compromisos.",
     "Mi jefe inmediato es consecuente. Sus palabras coinciden con sus acciones.",
-    "Mi jefe inmediato me brinda orientacion y guia cuando lo necesito.",
+    "Mi jefe inmediato me brinda orientación y guía cuando lo necesito.",
     "Mi jefe inmediato me brinda aprecio y reconocimiento por el buen trabajo y por el esfuerzo extra.",
-    "Mi jefe inmediato demuestra un interes en mi como persona, no solo como trabajador.",
+    "Mi jefe inmediato demuestra un interés en mí como persona, no sólo como trabajador.",
     "Puedo hacer cualquier pregunta razonable a mi jefe inmediato y recibir una respuesta directa.",
     "Mi jefe inmediato motiva y responde de forma sincera a nuestras ideas y sugerencias.",
     "Mi jefe inmediato reconoce que pueden cometerse errores involuntarios en el trabajo.",
-    "Mi jefe inmediato habla conmigo de forma periodica sobre la calidad de mi trabajo y como podria mejorar.",
+    "Mi jefe inmediato habla conmigo de forma periódica sobre la calidad de mi trabajo y cómo podría mejorar.",
     "Mi jefe inmediato se preocupa por mi desarrollo o crecimiento profesional.",
     "Mi jefe inmediato involucra a los trabajadores en decisiones relacionadas a su trabajo o a su ambiente de trabajo."
   ],
-  impar: [
-    "Los trabajadores son tratados de manera justa sin importar su edad.",
-    "Los trabajadores son tratados de manera justa sin importar su condicion socioeconomica.",
-    "Los trabajadores son tratados de manera justa sin importar su sexo.",
-    "Los trabajadores son tratados de manera justa sin importar su orientacion sexual.",
-    "Los ascensos y oportunidades de crecimiento se les da a quienes mas se lo merecen.",
+  imparcialidad: [
+    "Los trabajadores son tratados de manera justa sin importar su edad, sexo, condición socioeconómica u orientación sexual.",
+    "Los ascensos y oportunidades de crecimiento se les da a quienes más se lo merecen.",
     "Todos tenemos la oportunidad de recibir un reconocimiento especial.",
-    "A los trabajadores aqui se les paga acorde por el trabajo que hacen.",
+    "A los trabajadores aquí se les paga acorde por el trabajo que hacen.",
     "Siento que recibo una parte justa de las ganancias que obtiene la empresa.",
-    "Si considero que se me ha tratado injustamente, se que tendria la oportunidad de ser escuchado y que se me tratara con justicia."
+    "Si considero que se me ha tratado injustamente, sé que tendría la oportunidad de ser escuchado y que se me tratará con justicia."
   ],
   orgullo: [
-    "Siento que mi participacion es importante y que hace una diferencia en esta empresa.",
+    "Siento que mi participación es importante y que hace una diferencia en esta empresa.",
     "Puedo ser yo mismo en mi lugar de trabajo.",
-    "Aqui hay un sentimiento de familia o equipo.",
     "Considero que voy a poder satisfacer mis expectativas profesionales en esta empresa.",
     "Tengo confianza en las decisiones que toma la alta gerencia.",
     "Estoy dispuesto a hacer un esfuerzo extra por hacer bien mi trabajo.",
-    "Estoy orgulloso de decir a otros que trabajo aqui.",
-    "Quiero trabajar aqui por mucho tiempo.",
-    "Trabajar en este lugar tiene un significado especial para mi: este no es solo un trabajo."
+    "Estoy orgulloso de decir a otros que trabajo aquí.",
+    "Quiero trabajar aquí por mucho tiempo.",
+    "Trabajar en este lugar tiene un significado especial para mí: este no es solo un trabajo.",
+    "Yo diría que esta es una gran empresa para trabajar.",
+    "Se me brinda capacitación y/o entrenamiento con el objetivo de promover mi desarrollo profesional.",
+    "Creo que aquí harían todo lo posible antes de tener que hacer una reducción de personal.",
+    "Cuando veo lo que logramos en equipo, me siento orgulloso."
   ],
-  empresa: [
-    "Yo diria que esta es una gran empresa para trabajar.",
+  camaraderia: [
+    "Aquí hay un sentimiento de familia o equipo.",
     "Cuando ingresas a la empresa se te hace sentir bienvenido.",
     "Me dan los recursos, herramientas y equipos para hacer bien mi trabajo.",
-    "Se me brinda capacitacion y/o entrenamiento con el objetivo de promover mi desarrollo profesional.",
-    "La infraestructura e instalaciones de la empresa contribuyen a crear un agradable ambiente de trabajo.",
-    "Puedo solicitar tiempo libre o permisos personales, de forma coordinada, para atender asuntos de importancia.",
-    "Aqui se fomenta que las personas equilibren su vida de trabajo y vida personal/familiar.",
-    "Este es un lugar fisicamente seguro donde trabajar.",
-    "Este es un lugar psicologica y emocionalmente saludable donde trabajar.",
+    "Aquí se fomenta que las personas equilibren su vida de trabajo y vida personal/familiar.",
+    "Este es un lugar físicamente seguro donde trabajar.",
+    "Este es un lugar psicológica y emocionalmente saludable donde trabajar.",
+    "Tenemos beneficios especiales y únicos (no solo económicos).",
     "Este es un lugar acogedor y amigable para trabajar.",
-    "A las personas les gusta venir a trabajar.",
-    "Aqui se celebran eventos especiales.",
-    "Tenemos beneficios especiales y unicos (no solo economicos).",
-    "Creo que aqui harian todo lo posible antes de tener que hacer una reduccion de personal.",
-    "Siento que los equipos estan organizados y estructurados de manera efectiva.",
+    "Aquí se celebran eventos especiales.",
     "Todos conocemos los objetivos organizacionales y trabajamos en equipo para alcanzarlos.",
-    "Los trabajadores evitan la manipulacion y los rumores para conseguir sus objetivos.",
-    "Los trabajadores aqui se preocupan por sus companeros.",
-    "Puedo contar con la colaboracion de mis companeros.",
-    "Siento que estamos todos juntos en esto.",
-    "Mi equipo de trabajo recibe el apoyo adecuado de las areas de soporte con las que interactua.",
-    "Cuando veo lo que logramos en equipo, me siento orgulloso."
+    "Los trabajadores evitan la manipulación y los rumores para conseguir sus objetivos.",
+    "Los trabajadores aquí se preocupan por sus compañeros.",
+    "Puedo contar con la colaboración de mis compañeros.",
+    "Siento que estamos todos juntos en esto."
+  ],
+  cultura: [
+    {t:"¿Cómo se llama la cultura organizacional de Drimer?", correcta:"#ModoDrimer"},
+    {t:"¿Cuántos valores tiene el #ModoDrimer?", correcta:"4"},
+    {t:"¿Cuál de estas NO es uno de los 4 valores del #ModoDrimer?", correcta:"Austeridad"},
+    {t:"¿Cuál de estas frases corresponde a un valor del #ModoDrimer?", correcta:"“Damos la milla extra, siempre”"},
+    {t:"¿Qué es el #ModoDrimer?", correcta:"Vivir los 4 valores"},
+    {t:"¿Qué representa TEO en la cultura de Drimer?", correcta:"La mascota que representa el #ModoDrimer"},
+    {t:"¿Cuál de estas actitudes se considera un ANTIVALOR en Drimer?", correcta:"“No es mi área, no me toca”"},
+    {t:"¿Cómo se llama el mecanismo con el que los líderes reconocen públicamente el #ModoDrimer?", correcta:"Tarjetas de Reconocimiento"}
   ]
 };
 
 const DIMS = {
-  'Liderazgo':            {start:0,  end:20,  preguntas: PREGUNTAS.jefe,    icon:'🙋', sub:'¿Cómo te sientes respecto a la persona que seleccionaste como tu jefe inmediato?'},
-  'Imparcialidad y equidad': {start:20, end:29, preguntas: PREGUNTAS.impar,   icon:'⚖️', sub:'¿Cómo te sientes respecto al trato justo dentro de la organización?'},
-  'Orgullo e identidad':  {start:29, end:38,  preguntas: PREGUNTAS.orgullo,  icon:'🏆', sub:'¿Qué tanto te sientes identificado con la empresa?'},
-  'Empresa y camaradería':{start:38, end:60,  preguntas: PREGUNTAS.empresa,  icon:'🤝', sub:'¿Cómo te sientes respecto a los recursos, ambiente laboral, beneficios y la relación con tus compañeros?'}
+  'Liderazgo':            {start:0,  end:20, tipo:'likert',  preguntas: PREGUNTAS.liderazgo,     icon:'\u{1F64B}',     sub:'\u00bfC\u00f3mo te sientes respecto a la persona que seleccionaste como tu jefe inmediato?'},
+  'Imparcialidad':        {start:20, end:26, tipo:'likert',  preguntas: PREGUNTAS.imparcialidad, icon:'\u2696\ufe0f', sub:'\u00bfC\u00f3mo te sientes respecto al trato justo dentro de la organizaci\u00f3n?'},
+  'Orgullo':              {start:26, end:38, tipo:'likert',  preguntas: PREGUNTAS.orgullo,       icon:'\u{1F3C6}',     sub:'\u00bfQu\u00e9 tanto te sientes identificado con la empresa?'},
+  'Camarader\u00eda':      {start:38, end:52, tipo:'likert',  preguntas: PREGUNTAS.camaraderia,   icon:'\u{1F91D}',     sub:'\u00bfC\u00f3mo te sientes respecto a los recursos, ambiente laboral, beneficios y la relaci\u00f3n con tus compa\u00f1eros?'},
+  'Cultura #ModoDrimer':  {start:52, end:60, tipo:'cultura', preguntas: PREGUNTAS.cultura,       icon:'\u{1F9AB}',     sub:'\u00bfQu\u00e9 tanto conoce la organizaci\u00f3n su propia cultura? Mide aciertos, no percepci\u00f3n.'}
 };
 
 const ESC_LABELS = ['Nunca','Rara vez','A veces','Frecuentemente','Siempre'];
@@ -254,10 +257,17 @@ async function cargarDatos() {
   }
 }
 
+// Preguntas 1-52: favorable = 4 o 5. Preguntas 53-60: acierto = 1.
 function calcPct(vals) {
   if (!vals.length) return 0;
   const fav = vals.filter(function(v){ return v >= 4; }).length;
   return Math.round(fav / vals.length * 100);
+}
+
+function calcAcierto(vals) {
+  if (!vals.length) return 0;
+  const ok = vals.filter(function(v){ return v === 1; }).length;
+  return Math.round(ok / vals.length * 100);
 }
 
 function renderDetalle(allData) {
@@ -276,83 +286,118 @@ function renderDetalle(allData) {
 
 function renderDimension(allData) {
   const dim = DIMS[nombre];
-  if (!dim) { document.getElementById('content').innerHTML = '<div class="empty">Dimensión no encontrada.</div>'; return; }
+  if (!dim) { document.getElementById('content').innerHTML = '<div class="empty">Dimensi\u00f3n no encontrada.</div>'; return; }
 
-  document.getElementById('topbar-title').textContent = 'Detalle · ' + nombre;
-  document.title = 'Detalle · ' + nombre;
+  document.getElementById('topbar-title').textContent = 'Detalle \u00b7 ' + nombre;
+  document.title = 'Detalle \u00b7 ' + nombre;
 
-  // Calcular score global de dimensión
+  const esCultura = dim.tipo === 'cultura';
+  const calc = esCultura ? calcAcierto : calcPct;
+
+  // Score global de la dimension
   const allVals = [];
   allData.forEach(function(r) {
     for (var i = dim.start; i < dim.end; i++) {
       const v = parseInt(r.respuestas[i]);
-      if (!isNaN(v) && v > 0) allVals.push(v);
+      if (esCultura) { if (!isNaN(v)) allVals.push(v); }
+      else           { if (!isNaN(v) && v > 0) allVals.push(v); }
     }
   });
-  const scoreGlobal = calcPct(allVals);
+  const scoreGlobal = calc(allVals);
   const bc = barColor(scoreGlobal);
 
-  // Por pregunta
+  // Detalle por pregunta
   const pqs = dim.preguntas;
   let preguntasHTML = '';
-  pqs.forEach(function(texto, i) {
+  pqs.forEach(function(item, i) {
     const idx = dim.start + i;
-    const vals = allData.map(function(r){ return parseInt(r.respuestas[idx]); }).filter(function(v){ return !isNaN(v) && v > 0; });
-    const pct = calcPct(vals);
+    const texto = esCultura ? item.t : item;
+
+    const vals = allData.map(function(r){ return parseInt(r.respuestas[idx]); })
+                        .filter(function(v){ return esCultura ? !isNaN(v) : (!isNaN(v) && v > 0); });
+    const pct = calc(vals);
     const color = barColor(pct);
 
-    // Distribución 1-5
-    const dist = [1,2,3,4,5].map(function(v){ return vals.filter(function(x){ return x===v; }).length; });
-    const maxDist = Math.max(...dist, 1);
+    var distHTML;
+    if (esCultura) {
+      // Solo dos estados: acierto (1) o error / "No se" (0)
+      const nOk = vals.filter(function(v){ return v === 1; }).length;
+      const nNo = vals.length - nOk;
+      const dist = [nOk, nNo];
+      const etiquetas = ['Correcta', 'Incorrecta o "No s\u00e9"'];
+      const colores = ['#2e7d32', '#e05c5c'];
+      const maxDist = Math.max(nOk, nNo, 1);
+      distHTML = dist.map(function(n, di) {
+        const h = Math.round(n / maxDist * 100);
+        const pctDist = vals.length ? Math.round(n / vals.length * 100) : 0;
+        return '<div class="dist-item">' +
+          '<div class="dist-pct">' + (pctDist > 0 ? pctDist + '%' : '') + '</div>' +
+          '<div class="dist-bar-bg"><div class="dist-bar-fill" style="height:' + h + '%;background:' + colores[di] + '"></div></div>' +
+          '<div class="dist-label">' + etiquetas[di] + '</div>' +
+          '<div class="dist-label" style="color:var(--muted);margin-top:1px">(' + n + ')</div>' +
+        '</div>';
+      }).join('');
+    } else {
+      const dist = [1,2,3,4,5].map(function(v){ return vals.filter(function(x){ return x === v; }).length; });
+      const maxDist = Math.max(...dist, 1);
+      distHTML = dist.map(function(n, di) {
+        const h = Math.round(n / maxDist * 100);
+        const pctDist = vals.length ? Math.round(n / vals.length * 100) : 0;
+        return '<div class="dist-item">' +
+          '<div class="dist-pct">' + (pctDist > 0 ? pctDist + '%' : '') + '</div>' +
+          '<div class="dist-bar-bg"><div class="dist-bar-fill" style="height:' + h + '%;background:' + ESC_COLORS[di] + '"></div></div>' +
+          '<div class="dist-label">' + ESC_LABELS[di] + '</div>' +
+          '<div class="dist-label" style="color:var(--muted);margin-top:1px">(' + n + ')</div>' +
+        '</div>';
+      }).join('');
+    }
 
-    const distHTML = dist.map(function(n, di) {
-      const h = Math.round(n / maxDist * 100);
-      const pctDist = vals.length ? Math.round(n/vals.length*100) : 0;
-      return '<div class="dist-item">' +
-        '<div class="dist-pct">' + (pctDist > 0 ? pctDist+'%' : '') + '</div>' +
-        '<div class="dist-bar-bg"><div class="dist-bar-fill" style="height:'+h+'%;background:'+ESC_COLORS[di]+'"></div></div>' +
-        '<div class="dist-label">' + ESC_LABELS[di] + '</div>' +
-        '<div class="dist-label" style="color:var(--muted);margin-top:1px">(' + n + ')</div>' +
-      '</div>';
-    }).join('');
+    const respRef = esCultura
+      ? '<div style="font-size:11px;color:var(--muted);margin-top:6px">Respuesta correcta: <span style="color:#4caf7d;font-weight:600">' + item.correcta + '</span></div>'
+      : '';
 
     preguntasHTML +=
       '<div class="pregunta-row">' +
         '<div class="pregunta-top">' +
           '<div class="pregunta-num">P' + (idx+1) + '</div>' +
-          '<div class="pregunta-texto">' + texto + '</div>' +
+          '<div class="pregunta-texto">' + texto + respRef + '</div>' +
           '<div class="pregunta-pct" style="color:' + color + '">' + pct + '%</div>' +
         '</div>' +
         '<div class="barra-wrap">' +
           '<span class="barra-0">0</span>' +
-          '<div class="barra-bg"><div class="barra-fill" style="width:'+pct+'%;background:'+color+'"></div></div>' +
+          '<div class="barra-bg"><div class="barra-fill" style="width:' + pct + '%;background:' + color + '"></div></div>' +
           '<span class="barra-100">100</span>' +
         '</div>' +
         '<div class="dist-wrap">' + distHTML + '</div>' +
       '</div>';
   });
 
+  const etiquetaScore = esCultura ? '% de aciertos' : 'Score dimensi\u00f3n';
+  const subDetalle = esCultura
+    ? '% de respuestas correctas por pregunta \u00b7 Se considera conocimiento consolidado a partir de 80%'
+    : '% de respuestas favorables (4-5) por cada pregunta \u00b7 Con distribuci\u00f3n de respuestas';
+
   document.getElementById('content').innerHTML =
     '<div class="hero">' +
       '<div class="hero-icon">' + dim.icon + '</div>' +
       '<div>' +
-        '<div class="hero-eyebrow">Detalle de dimensión</div>' +
+        '<div class="hero-eyebrow">Detalle de dimensi\u00f3n</div>' +
         '<div class="hero-title">' + nombre + '</div>' +
         '<div class="hero-sub">' + dim.sub + '</div>' +
       '</div>' +
       '<div class="hero-score">' +
         '<div class="hero-score-val" style="color:' + bc + '">' + scoreGlobal + '<span style="font-size:20px;color:var(--muted)">%</span></div>' +
-        '<div class="hero-score-lbl">Score dimensión</div>' +
+        '<div class="hero-score-lbl">' + etiquetaScore + '</div>' +
         '<div class="hero-score-badge" style="background:' + bc + '22;color:' + bc + ';border:1px solid ' + bc + '44">' + scoreLabel(scoreGlobal) + '</div>' +
       '</div>' +
     '</div>' +
     '<div class="resumen-grid">' +
       '<div class="resumen-card"><div class="resumen-label">Respuestas analizadas</div><div class="resumen-val">' + allData.length + '</div><div class="resumen-sub">Total participantes</div></div>' +
-      '<div class="resumen-card"><div class="resumen-label">Preguntas evaluadas</div><div class="resumen-val">' + pqs.length + '</div><div class="resumen-sub">En esta dimensión</div></div>' +
-      '<div class="resumen-card"><div class="resumen-label">Score global</div><div class="resumen-val" style="color:' + bc + '">' + scoreGlobal + '<span>%</span></div><div class="resumen-sub">' + scoreLabel(scoreGlobal) + '</div></div>' +
+      '<div class="resumen-card"><div class="resumen-label">Preguntas evaluadas</div><div class="resumen-val">' + pqs.length + '</div><div class="resumen-sub">En esta dimensi\u00f3n</div></div>' +
+      '<div class="resumen-card"><div class="resumen-label">' + etiquetaScore + '</div><div class="resumen-val" style="color:' + bc + '">' + scoreGlobal + '<span>%</span></div><div class="resumen-sub">' + scoreLabel(scoreGlobal) + '</div></div>' +
     '</div>' +
     '<div class="section-title">Detalle por pregunta</div>' +
-    '<div class="section-sub">% de respuestas favorables (4-5) por cada pregunta · Con distribución de respuestas</div>' +
+    '<div class="section-sub">' + subDetalle + '</div>' +
     preguntasHTML;
 }
 
@@ -378,7 +423,7 @@ function renderJefe(allData) {
   const bc = barColor(scoreGlobal);
 
   let preguntasHTML = '';
-  PREGUNTAS.jefe.forEach(function(texto, i) {
+  PREGUNTAS.liderazgo.forEach(function(texto, i) {
     const vals = rows.map(function(r){ return parseInt(r.respuestas[i]); }).filter(function(v){ return !isNaN(v) && v > 0; });
     const pct = calcPct(vals);
     const color = barColor(pct);

@@ -279,27 +279,34 @@
 const SHEETS_ID = '1IT_sRqzsuMteZ9rNdHGM95uH605CO2VlBPQd17hMQaw';
 const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw73i0Y6g7Hk5VAcDAU8IHFw5kW1RMskfQXmvudHDsxqwcU1hge8QWn2TXASAiJVs8VGw/exec';
 
-// Rangos de preguntas por dimensión
+// Rangos de preguntas por dimension (1-indexado, inclusivo)
+// tipo 'likert'  -> % favorable (respuestas 4 o 5)
+// tipo 'cultura' -> % de aciertos (se guarda 1 = correcta, 0 = incorrecta o "No se")
 const DIMS = {
   'Liderazgo': {
-    start:1, end:20, icon:'🙋',
+    start:1, end:20, icon:'\u{1F64B}', tipo:'likert',
     titulo: 'Liderazgo',
-    sub: '¿Cómo te sientes respecto a la persona que seleccionaste como tu jefe inmediato?'
+    sub: '\u00bfC\u00f3mo te sientes respecto a la persona que seleccionaste como tu jefe inmediato?'
   },
-  'Imparcialidad y equidad': {
-    start:21, end:29, icon:'⚖️',
-    titulo: 'Imparcialidad y equidad',
-    sub: '¿Cómo te sientes respecto al trato justo dentro de la organización?'
+  'Imparcialidad': {
+    start:21, end:26, icon:'\u2696\ufe0f', tipo:'likert',
+    titulo: 'Imparcialidad',
+    sub: '\u00bfC\u00f3mo te sientes respecto al trato justo dentro de la organizaci\u00f3n?'
   },
-  'Orgullo e identidad': {
-    start:30, end:38, icon:'🏆',
-    titulo: 'Orgullo e identidad',
-    sub: '¿Qué tanto te sientes identificado con la empresa?'
+  'Orgullo': {
+    start:27, end:38, icon:'\u{1F3C6}', tipo:'likert',
+    titulo: 'Orgullo',
+    sub: '\u00bfQu\u00e9 tanto te sientes identificado con la empresa?'
   },
-  'Empresa y camaradería': {
-    start:39, end:60, icon:'🤝',
-    titulo: 'Empresa y camaradería',
-    sub: '¿Cómo te sientes respecto a los recursos, ambiente laboral, beneficios y la relación con tus compañeros?'
+  'Camarader\u00eda': {
+    start:39, end:52, icon:'\u{1F91D}', tipo:'likert',
+    titulo: 'Camarader\u00eda',
+    sub: '\u00bfC\u00f3mo te sientes respecto a los recursos, ambiente laboral, beneficios y la relaci\u00f3n con tus compa\u00f1eros?'
+  },
+  'Cultura #ModoDrimer': {
+    start:53, end:60, icon:'\u{1F9AB}', tipo:'cultura',
+    titulo: 'Cultura #ModoDrimer',
+    sub: '\u00bfQu\u00e9 tanto conoce la organizaci\u00f3n su propia cultura? Mide aciertos, no percepci\u00f3n.'
   }
 };
 
@@ -310,7 +317,7 @@ const MUJERES = new Set(["CLAUDIA MOGOLLON", "CRISTINA SAKATA", "EDITH VILLENA",
 function iconoJefe(nombre) { return MUJERES.has((nombre||'').toUpperCase()) ? '👩' : '👨'; }
 
 // Colores por dimensión
-const DIM_COLORS = ['#4C9FC8','#B6CFD0','#70b86a','#e8b84b'];
+const DIM_COLORS = ['#4C9FC8','#B6CFD0','#70b86a','#e8b84b','#c98fd6'];
 
 function scoreColor(s) {
   if (s >= 90) return 'gd';
@@ -336,31 +343,51 @@ function scoreLabel(s) {
   return 'Crítico';
 }
 
-// Calcular Trust Index de un set de respuestas
-function calcTrust(rows) {
+// ---------- MOTOR DE CALCULO ----------
+// Preguntas 1-52  : escala 1-5. Favorable = 4 o 5.
+// Preguntas 53-60 : opcion multiple. Se guarda 1 (acierto) o 0. Acierto = 1.
+// Los dos porcentajes NUNCA se promedian juntos: significan cosas distintas.
+
+function pctFavorable(rows, start, end) {
   if (!rows.length) return 0;
   let fav = 0, total = 0;
   rows.forEach(function(r) {
-    for (var i = 0; i < 60; i++) {
+    for (var i = start - 1; i < end; i++) {
       const v = parseInt(r.respuestas[i]);
-      if (!isNaN(v)) { total++; if (v >= 4) fav++; }
+      if (!isNaN(v) && v > 0) { total++; if (v >= 4) fav++; }
     }
   });
   return total > 0 ? Math.round(fav / total * 100) : 0;
 }
 
-// Calcular score de una dimensión
-function calcDim(rows, start, end) {
+function pctAcierto(rows, start, end) {
   if (!rows.length) return 0;
-  let fav = 0, total = 0;
+  let ok = 0, total = 0;
   rows.forEach(function(r) {
-    for (var i = start-1; i < end; i++) {
+    for (var i = start - 1; i < end; i++) {
       const v = parseInt(r.respuestas[i]);
-      if (!isNaN(v)) { total++; if (v >= 4) fav++; }
+      if (!isNaN(v)) { total++; if (v === 1) ok++; }
     }
   });
-  return total > 0 ? Math.round(fav / total * 100) : 0;
+  return total > 0 ? Math.round(ok / total * 100) : 0;
 }
+
+// Score de una dimension, segun su tipo
+function calcDim(rows, key) {
+  const d = DIMS[key];
+  if (!d) return 0;
+  return d.tipo === 'cultura' ? pctAcierto(rows, d.start, d.end)
+                              : pctFavorable(rows, d.start, d.end);
+}
+
+// Indice de Clima: solo preguntas 1-52
+function calcClima(rows) { return pctFavorable(rows, 1, 52); }
+
+// Indice de Conocimiento #ModoDrimer: solo preguntas 53-60
+function calcCultura(rows) { return pctAcierto(rows, 53, 60); }
+
+// Claves de las dimensiones de clima (excluye Cultura)
+const DIMS_CLIMA = Object.keys(DIMS).filter(function(k){ return DIMS[k].tipo !== 'cultura'; });
 
 async function cargarDatos() {
   document.getElementById('last-update').textContent = 'Actualizando...';
@@ -417,17 +444,23 @@ function renderDashboard() {
   }
 
   // Calcular KPIs
-  const trust = calcTrust(filteredData);
+  const clima   = calcClima(filteredData);
+  const cultura = calcCultura(filteredData);
   const dimScores = {};
   Object.keys(DIMS).forEach(function(k) {
-    dimScores[k] = calcDim(filteredData, DIMS[k].start, DIMS[k].end);
+    dimScores[k] = calcDim(filteredData, k);
   });
+
+  // Dimension mas baja: solo entre las 4 de clima (Cultura mide otra cosa)
+  const climaScores = DIMS_CLIMA.map(function(k){ return dimScores[k]; });
+  const minClima = Math.min.apply(null, climaScores);
+  const dimMinNombre = DIMS_CLIMA.find(function(k){ return dimScores[k] === minClima; });
 
   // Score por gerencia
   const gerencias = [...new Set(filteredData.map(function(d){return d.gerencia;}))].filter(Boolean);
   const gerScores = gerencias.map(function(g) {
     const rows = filteredData.filter(function(d){return d.gerencia === g;});
-    return {nombre: g, score: calcTrust(rows), n: rows.length};
+    return {nombre: g, score: calcClima(rows), n: rows.length};
   }).sort(function(a,b){return b.score-a.score;});
 
   // Score por jefe (mínimo 5 respuestas)
@@ -436,9 +469,9 @@ function renderDashboard() {
     const rows = filteredData.filter(function(d){return d.jefe === j;});
     const dimJ = {};
     Object.keys(DIMS).forEach(function(k) {
-      dimJ[k] = calcDim(rows, DIMS[k].start, DIMS[k].end);
+      dimJ[k] = calcDim(rows, k);
     });
-    return {nombre: j, score: calcDim(rows, 1, 20), n: rows.length, dims: dimJ};
+    return {nombre: j, score: pctFavorable(rows, 1, 20), n: rows.length, dims: dimJ};
   }).filter(function(j){return j.n >= 5;}).sort(function(a,b){return b.score-a.score;});
 
   // Render HTML
@@ -447,10 +480,10 @@ function renderDashboard() {
     '<div class="top-row">' +
       '<div class="top-left">' +
         '<div class="kpi-grid">' +
-          kpiCard('Trust Index Global', trust, '%', scoreLabel(trust), scoreColor(trust), 'Porcentaje de respuestas favorables (4-5)', 'trust') +
+          kpiCard('Índice de Clima', clima, '%', scoreLabel(clima), scoreColor(clima), '% de respuestas favorables (4-5) · Preguntas 1–52', 'trust') +
+          kpiCard('Conocimiento #ModoDrimer', cultura, '%', scoreLabel(cultura), scoreColor(cultura), '% de aciertos · Preguntas 53–60', 'green') +
           kpiCard('Participantes', filteredData.length, '', '', 'blue', 'Respuestas recibidas', 'blue') +
-          kpiCard('Dimensión más alta', Math.max(...Object.values(dimScores)), '%', Object.keys(dimScores).find(function(k){return dimScores[k]===Math.max(...Object.values(dimScores));}), scoreColor(Math.max(...Object.values(dimScores))), '', 'green') +
-          kpiCard('Dimensión más baja', Math.min(...Object.values(dimScores)), '%', Object.keys(dimScores).find(function(k){return dimScores[k]===Math.min(...Object.values(dimScores));}), scoreColor(Math.min(...Object.values(dimScores))), '', 'red') +
+          kpiCard('Dimensión de clima más baja', minClima, '%', dimMinNombre, scoreColor(minClima), 'Prioridad de intervención', 'red') +
         '</div>' +
       '</div>' +
       renderSemaforo() +
@@ -458,8 +491,8 @@ function renderDashboard() {
 
     // Dimensiones + Gerencias
     '<div class="charts-grid">' +
-      '<div class="chart-card"><div class="chart-title">Score por dimensión <span style="font-size:10px;color:var(--muted);font-weight:400">· Clic para ver detalle</span></div><div class="chart-sub">Porcentaje de respuestas favorables por cada dimensión GPTW</div><div class="chart-wrap" style="height:280px;cursor:pointer"><canvas id="chart-dims"></canvas></div></div>' +
-      '<div class="chart-card"><div class="chart-title">Score por gerencia <span style="font-size:10px;color:var(--muted);font-weight:400">· Clic para filtrar</span></div><div class="chart-sub">Trust Index comparativo entre gerencias</div><div class="chart-wrap"><canvas id="chart-ger"></canvas></div></div>' +
+      '<div class="chart-card"><div class="chart-title">Score por dimensión <span style="font-size:10px;color:var(--muted);font-weight:400">· Clic para ver detalle</span></div><div class="chart-sub">% favorable en las 4 dimensiones de clima · % de aciertos en Cultura</div><div class="chart-wrap" style="height:280px;cursor:pointer"><canvas id="chart-dims"></canvas></div></div>' +
+      '<div class="chart-card"><div class="chart-title">Score por gerencia <span style="font-size:10px;color:var(--muted);font-weight:400">· Clic para filtrar</span></div><div class="chart-sub">Índice de Clima comparativo entre gerencias (preguntas 1–52)</div><div class="chart-wrap"><canvas id="chart-ger"></canvas></div></div>' +
     '</div>' +
 
     // Dimensiones detalle
@@ -472,7 +505,7 @@ function renderDashboard() {
     // Ranking jefes
     '<div class="table-card">' +
       '<div class="table-title">Ranking de jefes inmediatos</div>' +
-      '<div class="table-sub">Score basado en las primeras 20 preguntas. Solo se muestran jefes con 5 o más respuestas. <span style="color:var(--sage)">· Clic en una fila para ver detalle</span></div>' +
+      '<div class="table-sub">Score basado en las 20 preguntas de Liderazgo (P1–P20). Solo se muestran jefes con 5 o más respuestas. <span style="color:var(--sage)">· Clic en una fila para ver detalle</span></div>' +
       renderTablaJefes(jefeScores) +
     '</div>';
 
@@ -536,11 +569,12 @@ function dimCard(nombre, icon, score, color) {
   const bc = barColor(score);
   const dim = DIMS[nombre];
   const sub = dim ? dim.sub : '';
+  const etiqueta = (dim && dim.tipo === 'cultura') ? '% de aciertos' : '% favorable';
   return '<div class="dim-card">' +
     '<div class="dim-card-title">' + icon + ' ' + nombre + '</div>' +
     (sub ? '<div style="font-size:11px;color:var(--muted);margin-bottom:14px;line-height:1.5">' + sub + '</div>' : '') +
     '<div class="dim-row">' +
-      '<div class="dim-row-top"><span class="dim-row-label">Score global</span><span class="dim-row-val">' + score + '%</span></div>' +
+      '<div class="dim-row-top"><span class="dim-row-label">' + etiqueta + '</span><span class="dim-row-val">' + score + '%</span></div>' +
       '<div class="dim-bar-bg"><div class="dim-bar-fill" style="width:' + score + '%;background:' + bc + '"></div></div>' +
     '</div>' +
     '<div style="margin-top:12px;font-size:11px;color:var(--muted)">Interpretación: <span style="color:' + bc + ';font-weight:600">' + scoreLabel(score) + '</span></div>' +
@@ -550,7 +584,7 @@ function dimCard(nombre, icon, score, color) {
 function renderSemaforo() {
   return '<div class="semaforo-card">' +
     '<div class="semaforo-title">🚦 Escala de resultados</div>' +
-    '<div class="semaforo-sub">Intervalos del Trust Index</div>' +
+    '<div class="semaforo-sub">Intervalos de interpretación</div>' +
     '<div class="sem-row"><div class="sem-dot" style="background:#2e7d32"></div><div class="sem-range">90% – 100%</div><div class="sem-label">Excelente · Clase mundial</div></div>' +
     '<div class="sem-row"><div class="sem-dot" style="background:#4caf7d"></div><div class="sem-range">75% – 89%</div><div class="sem-label">Muy bueno</div></div>' +
     '<div class="sem-row"><div class="sem-dot" style="background:#e8b84b"></div><div class="sem-range">60% – 74%</div><div class="sem-label">Bueno, con áreas de mejora</div></div>' +
