@@ -389,6 +389,35 @@ function calcCultura(rows) { return pctAcierto(rows, 53, 60); }
 // Claves de las dimensiones de clima (excluye Cultura)
 const DIMS_CLIMA = Object.keys(DIMS).filter(function(k){ return DIMS[k].tipo !== 'cultura'; });
 
+// Gerencia a la que pertenece cada jefe, leida de la pestana Estructura.
+// Es lo que permite agrupar Liderazgo por el jefe evaluado y no por lo declarado.
+let GER_DE_JEFE = {};
+const GERENCIA_GENERAL = 'GERENCIA GENERAL';
+
+async function cargarEstructura() {
+  try {
+    const url = "https://docs.google.com/spreadsheets/d/" + SHEETS_ID + "/gviz/tq?tqx=out:json&sheet=Estructura";
+    const res = await fetch(url);
+    const txt = await res.text();
+    const json = JSON.parse(txt.substring(47).slice(0, -2));
+    const mapa = {};
+    json.table.rows.forEach(function(r) {
+      const g = r.c[0] && r.c[0].v ? String(r.c[0].v).trim() : null;
+      const j = r.c[2] && r.c[2].v ? String(r.c[2].v).trim() : null;
+      if (g && j) mapa[j.toUpperCase()] = g;
+    });
+    GER_DE_JEFE = mapa;
+  } catch (e) {
+    console.error('No se pudo cargar la Estructura:', e);
+    GER_DE_JEFE = {};   // sin ella, Liderazgo cae al comportamiento anterior
+  }
+}
+
+// Gerencia del jefe evaluado en una respuesta
+function gerenciaDelJefe(r) {
+  return GER_DE_JEFE[String(r.jefe || '').trim().toUpperCase()] || '';
+}
+
 async function cargarDatos() {
   document.getElementById('last-update').textContent = 'Actualizando...';
   try {
@@ -400,8 +429,13 @@ async function cargarDatos() {
 
     allData = rows.filter(function(r) { return r.gerencia; });
 
+    if (!Object.keys(GER_DE_JEFE).length) await cargarEstructura();
+
     // Poblar filtro gerencias
-    const gerencias = [...new Set(allData.map(function(d){return d.gerencia;}))].filter(Boolean).sort();
+    const gerencias = [...new Set(
+      allData.map(function(d){return d.gerencia;})
+             .concat(allData.map(gerenciaDelJefe))
+    )].filter(Boolean).sort();
     const fg = document.getElementById('f-gerencia');
     const curG = fg.value;
     fg.innerHTML = '<option value="">Todas las gerencias</option>';
@@ -423,50 +457,82 @@ async function cargarDatos() {
   }
 }
 
+// filteredData  -> agrupado por la gerencia DECLARADA por quien responde.
+//                  Alimenta Imparcialidad, Orgullo, Camaraderia, Cultura y Participantes.
+// liderazgoData -> agrupado por la gerencia del JEFE EVALUADO.
+//                  Alimenta la dimension Liderazgo y el ranking de jefes.
+let liderazgoData = [];
+
 function aplicarFiltros() {
   const fe = document.getElementById('f-empresa').value;
   const fg = document.getElementById('f-gerencia').value;
-  filteredData = allData.filter(function(d) {
-    if (fe && d.empresa !== fe) return false;
-    if (fg && d.gerencia !== fg) return false;
-    return true;
+
+  const porEmpresa = allData.filter(function(d) {
+    return !fe || d.empresa === fe;
   });
+
+  filteredData = porEmpresa.filter(function(d) {
+    return !fg || d.gerencia === fg;
+  });
+
+  liderazgoData = porEmpresa.filter(function(d) {
+    return !fg || gerenciaDelJefe(d) === fg;
+  });
+
   renderDashboard();
 }
 
 function renderDashboard() {
   const cont = document.getElementById('main-content');
-  document.getElementById('total-resp').textContent = filteredData.length;
+  const fg = document.getElementById('f-gerencia').value;
+  const esGG = (fg === GERENCIA_GENERAL);
 
-  if (!filteredData.length) {
+  // En Gerencia General nadie declara esa gerencia: lo que existe son las
+  // evaluaciones a su gerente. Por eso la vista se arma sobre liderazgoData.
+  const datosBase = esGG ? liderazgoData : filteredData;
+  document.getElementById('total-resp').textContent = datosBase.length;
+
+  if (!datosBase.length) {
     cont.innerHTML = '<div class="empty"><div class="empty-icon">📭</div><h3>Sin datos aún</h3><p>No hay respuestas que coincidan con los filtros seleccionados.<br>Ajusta los filtros o espera a que lleguen más respuestas.</p></div>';
     return;
   }
 
-  // Calcular KPIs
-  const clima   = calcClima(filteredData);
-  const cultura = calcCultura(filteredData);
+  // ---- Scores por dimension ----
+  // Liderazgo sale de liderazgoData; el resto, de filteredData.
   const dimScores = {};
   Object.keys(DIMS).forEach(function(k) {
-    dimScores[k] = calcDim(filteredData, k);
+    dimScores[k] = (k === 'Liderazgo') ? pctFavorable(liderazgoData, 1, 20)
+                                       : calcDim(filteredData, k);
   });
 
-  // Dimension mas baja: solo entre las 4 de clima (Cultura mide otra cosa)
+  const idxLiderazgo = pctFavorable(liderazgoData, 1, 20);
+  const clima   = calcClima(filteredData);
+  const cultura = calcCultura(filteredData);
+
+  // Dimension de clima mas baja (no aplica en Gerencia General)
   const climaScores = DIMS_CLIMA.map(function(k){ return dimScores[k]; });
   const minClima = Math.min.apply(null, climaScores);
   const dimMinNombre = DIMS_CLIMA.find(function(k){ return dimScores[k] === minClima; });
 
-  // Score por gerencia
-  const gerencias = [...new Set(filteredData.map(function(d){return d.gerencia;}))].filter(Boolean);
-  const gerScores = gerencias.map(function(g) {
-    const rows = filteredData.filter(function(d){return d.gerencia === g;});
-    return {nombre: g, score: calcClima(rows), n: rows.length};
-  }).sort(function(a,b){return b.score-a.score;});
+  // ---- Score por gerencia (grafico horizontal) ----
+  // Gerencia General no entra en la comparacion: mide liderazgo, no clima.
+  let gerScores;
+  if (esGG) {
+    gerScores = [{nombre: GERENCIA_GENERAL, score: idxLiderazgo, n: liderazgoData.length}];
+  } else {
+    const gerencias = [...new Set(filteredData.map(function(d){return d.gerencia;}))]
+      .filter(Boolean).filter(function(g){ return g !== GERENCIA_GENERAL; });
+    gerScores = gerencias.map(function(g) {
+      const rows = filteredData.filter(function(d){return d.gerencia === g;});
+      return {nombre: g, score: calcClima(rows), n: rows.length};
+    }).sort(function(a,b){return b.score-a.score;});
+  }
 
-  // Score por jefe (mínimo 5 respuestas)
-  const jefes = [...new Set(filteredData.map(function(d){return d.jefe;}))].filter(Boolean);
+  // ---- Ranking de jefes (minimo 5 respuestas) ----
+  // Se arma sobre liderazgoData para que cuadre con la barra de Liderazgo.
+  const jefes = [...new Set(liderazgoData.map(function(d){return d.jefe;}))].filter(Boolean);
   const jefeScores = jefes.map(function(j) {
-    const rows = filteredData.filter(function(d){return d.jefe === j;});
+    const rows = liderazgoData.filter(function(d){return d.jefe === j;});
     const dimJ = {};
     Object.keys(DIMS).forEach(function(k) {
       dimJ[k] = calcDim(rows, k);
@@ -474,40 +540,47 @@ function renderDashboard() {
     return {nombre: j, score: pctFavorable(rows, 1, 20), n: rows.length, dims: dimJ};
   }).filter(function(j){return j.n >= 5;}).sort(function(a,b){return b.score-a.score;});
 
+  // ---- KPIs ----
+  const kpis = esGG
+    ? kpiCard('Índice de Liderazgo', idxLiderazgo, '%', scoreLabel(idxLiderazgo), scoreColor(idxLiderazgo), '% de respuestas favorables (4-5) · Preguntas 1–20', 'trust') +
+      kpiCard('Participantes', liderazgoData.length, '', '', 'blue', 'Evaluaciones recibidas', 'blue')
+    : kpiCard('Índice de Clima', clima, '%', scoreLabel(clima), scoreColor(clima), '% de respuestas favorables (4-5) · Preguntas 1–52', 'trust') +
+      kpiCard('Conocimiento #ModoDrimer', cultura, '%', scoreLabel(cultura), scoreColor(cultura), '% de aciertos · Preguntas 53–60', 'green') +
+      kpiCard('Participantes', filteredData.length, '', '', 'blue', 'Respuestas recibidas', 'blue') +
+      kpiCard('Dimensión de clima más baja', minClima, '%', dimMinNombre, scoreColor(minClima), 'Prioridad de intervención', 'red');
+
+  const subDims = esGG
+    ? '% favorable en las 20 preguntas de Liderazgo'
+    : '% favorable en las 4 dimensiones de clima · % de aciertos en Cultura';
+
+  const subGer = esGG
+    ? 'Índice de Liderazgo de la Gerencia General (preguntas 1–20)'
+    : 'Índice de Clima comparativo entre gerencias (preguntas 1–52)';
+
   // Render HTML
   cont.innerHTML =
-    // TOP ROW: KPIs + Semáforo
     '<div class="top-row">' +
-      '<div class="top-left">' +
-        '<div class="kpi-grid">' +
-          kpiCard('Índice de Clima', clima, '%', scoreLabel(clima), scoreColor(clima), '% de respuestas favorables (4-5) · Preguntas 1–52', 'trust') +
-          kpiCard('Conocimiento #ModoDrimer', cultura, '%', scoreLabel(cultura), scoreColor(cultura), '% de aciertos · Preguntas 53–60', 'green') +
-          kpiCard('Participantes', filteredData.length, '', '', 'blue', 'Respuestas recibidas', 'blue') +
-          kpiCard('Dimensión de clima más baja', minClima, '%', dimMinNombre, scoreColor(minClima), 'Prioridad de intervención', 'red') +
-        '</div>' +
-      '</div>' +
+      '<div class="top-left"><div class="kpi-grid">' + kpis + '</div></div>' +
       renderSemaforo() +
     '</div>' +
 
-    // Dimensiones + Gerencias
     '<div class="charts-grid">' +
-      '<div class="chart-card"><div class="chart-title">Score por dimensión <span style="font-size:10px;color:var(--muted);font-weight:400">· Clic para ver detalle</span></div><div class="chart-sub">% favorable en las 4 dimensiones de clima · % de aciertos en Cultura</div><div class="chart-wrap" style="height:280px;cursor:pointer"><canvas id="chart-dims"></canvas></div></div>' +
-      '<div class="chart-card"><div class="chart-title">Score por gerencia <span style="font-size:10px;color:var(--muted);font-weight:400">· Clic para filtrar</span></div><div class="chart-sub">Índice de Clima comparativo entre gerencias (preguntas 1–52)</div><div class="chart-wrap"><canvas id="chart-ger"></canvas></div></div>' +
+      '<div class="chart-card"><div class="chart-title">Score por dimensión <span style="font-size:10px;color:var(--muted);font-weight:400">· Clic para ver detalle</span></div><div class="chart-sub">' + subDims + '</div><div class="chart-wrap" style="height:280px;cursor:pointer"><canvas id="chart-dims"></canvas></div></div>' +
+      '<div class="chart-card"><div class="chart-title">Score por gerencia <span style="font-size:10px;color:var(--muted);font-weight:400">· Clic para filtrar</span></div><div class="chart-sub">' + subGer + '</div><div class="chart-wrap"><canvas id="chart-ger"></canvas></div></div>' +
     '</div>' +
 
-    // Dimensiones detalle
-    '<div class="dim-grid">' +
-      Object.keys(DIMS).map(function(k, i) {
-        return dimCard(k, DIMS[k].icon, dimScores[k], DIM_COLORS[i]);
-      }).join('') +
-    '</div>' +
+    (esGG ? '' :
+      '<div class="dim-grid">' +
+        Object.keys(DIMS).map(function(k, i) {
+          return dimCard(k, DIMS[k].icon, dimScores[k], DIM_COLORS[i]);
+        }).join('') +
+      '</div>' +
 
-    // Ranking jefes
-    '<div class="table-card">' +
-      '<div class="table-title">Ranking de jefes inmediatos</div>' +
-      '<div class="table-sub">Score basado en las 20 preguntas de Liderazgo (P1–P20). Solo se muestran jefes con 5 o más respuestas. <span style="color:var(--sage)">· Clic en una fila para ver detalle</span></div>' +
-      renderTablaJefes(jefeScores) +
-    '</div>';
+      '<div class="table-card">' +
+        '<div class="table-title">Ranking de jefes inmediatos</div>' +
+        '<div class="table-sub">Score basado en las 20 preguntas de Liderazgo (P1–P20). Solo se muestran jefes con 5 o más respuestas. <span style="color:var(--sage)">· Clic en una fila para ver detalle</span></div>' +
+        renderTablaJefes(jefeScores) +
+      '</div>');
 
     // Event listeners para ranking de jefes
   setTimeout(function() {
@@ -526,7 +599,7 @@ function renderDashboard() {
 
   // Renderizar charts
   setTimeout(function() {
-    renderChartDims(dimScores);
+    renderChartDims(esGG ? {'Liderazgo': dimScores['Liderazgo']} : dimScores);
     renderChartGer(gerScores);
   }, 50);
 }
