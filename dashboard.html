@@ -73,10 +73,10 @@
   .kpi-card.trust .kpi-badge.o{background:rgba(224,122,42,1);color:#7a3a00;border:1px solid rgba(224,122,42,1);}
   .kpi-card.trust .kpi-badge.r{background:rgba(224,92,92,1);color:#8b1a1a;border:1px solid rgba(224,92,92,1);}
 
-  .kpi-label{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#fff;margin-bottom:10px;}
-  .kpi-value{font-size:38px;font-weight:700;color:#fff;line-height:1;margin-bottom:6px;}
-  .kpi-value span{font-size:18px;font-weight:400;color:#fff;}
-  .kpi-sub{font-size:11px;color:#fff;}
+  .kpi-label{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#051C2C;margin-bottom:10px;}
+  .kpi-value{font-size:38px;font-weight:700;color:#051C2C;line-height:1;margin-bottom:6px;}
+  .kpi-value span{font-size:18px;font-weight:400;color:#051C2C;}
+  .kpi-sub{font-size:11px;color:#051C2C;}
   .kpi-badge{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:600;padding:3px 8px;border-radius:100px;margin-top:8px;}
   .kpi-badge.gd{background:rgba(46,125,50,1);color:#2e7d32;}
   .kpi-badge.g{background:rgba(76,175,125,1);color:#4caf7d;}
@@ -565,7 +565,7 @@ function renderDashboard() {
     '</div>' +
 
     '<div class="charts-grid">' +
-      '<div class="chart-card"><div class="chart-title">Score por dimensión <span style="font-size:10px;color:var(--muted);font-weight:400">· Clic para ver detalle</span></div><div class="chart-sub">' + subDims + '</div><div class="chart-wrap" style="height:280px;cursor:pointer"><canvas id="chart-dims"></canvas></div></div>' +
+      '<div class="chart-card"><div class="chart-title">Score por dimensión <span style="font-size:10px;color:var(--muted);font-weight:400">· Clic para ver detalle</span></div><div class="chart-sub">' + subDims + '</div><div class="chart-wrap" style="height:360px;cursor:pointer"><canvas id="chart-dims"></canvas></div></div>' +
       '<div class="chart-card"><div class="chart-title">Score por gerencia <span style="font-size:10px;color:var(--muted);font-weight:400">· Clic para filtrar</span></div><div class="chart-sub">' + subGer + '</div><div class="chart-wrap"><canvas id="chart-ger"></canvas></div></div>' +
     '</div>' +
 
@@ -685,6 +685,7 @@ function renderChartDims(dimScores) {
     },
     options: {
       responsive: true, maintainAspectRatio: false,
+      devicePixelRatio: window.devicePixelRatio || 1,
       layout: {padding: {top: 24}},
       onClick: function(evt, elements) {
         if (elements.length > 0) {
@@ -738,7 +739,7 @@ function renderChartDims(dimScores) {
           ticks:{
             color:'#051C2C',
             font:{
-              size: window.innerWidth < 640 ? 8 : 11,
+              size: window.innerWidth < 640 ? 9 : 13,
               family:'Poppins'
             },
             maxRotation: 0,
@@ -762,13 +763,13 @@ function renderChartDims(dimScores) {
             }
           }
         },
-        y: {min:0,max:100,grid:{color:'rgba(56,73,103,0.2)'},ticks:{color:'#051C2C',font:{size:11,family:'Poppins'},callback:function(v){return v+'%';}}}
+        y: {min:0,max:100,grid:{color:'rgba(56,73,103,0.2)'},ticks:{color:'#051C2C',font:{size:13,family:'Poppins'},callback:function(v){return v+'%';}}}
       },
       animation: {onComplete: function(anim) {
         const chart = anim.chart;
         const ctx = chart.ctx;
         ctx.save();
-        ctx.font = 'bold 11px Poppins';
+        ctx.font = 'bold 13px Poppins';
         ctx.fillStyle = '#051C2C';
         ctx.textAlign = 'center';
         chart.data.datasets[0].data.forEach(function(val, i) {
@@ -800,6 +801,7 @@ function renderChartGer(gerScores) {
     options: {
       indexAxis: 'y',
       responsive: true, maintainAspectRatio: false,
+      devicePixelRatio: window.devicePixelRatio || 1,
       layout: {padding: {right: 48}},
       onClick: function(evt, elements) {
         if (elements.length > 0) {
@@ -814,14 +816,14 @@ function renderChartGer(gerScores) {
         tooltip:{callbacks:{label:function(c){return ' '+c.raw+'% ('+gerScores[c.dataIndex].n+' resp.)';}}},
       },
       scales: {
-        x: {min:0,max:100,grid:{color:'rgba(56,73,103,0.2)'},ticks:{color:'#051C2C',font:{size:11,family:'Poppins'},callback:function(v){return v+'%';}}},
-        y: {grid:{color:'rgba(56,73,103,0.2)'},ticks:{color:'#051C2C',font:{size:11,family:'Poppins'}}}
+        x: {min:0,max:100,grid:{color:'rgba(56,73,103,0.2)'},ticks:{color:'#051C2C',font:{size:13,family:'Poppins'},callback:function(v){return v+'%';}}},
+        y: {grid:{color:'rgba(56,73,103,0.2)'},ticks:{color:'#051C2C',font:{size:13,family:'Poppins'}}}
       },
       animation: {onComplete: function(anim) {
         const chart = anim.chart;
         const ctx = chart.ctx;
         ctx.save();
-        ctx.font = 'bold 11px Poppins';
+        ctx.font = 'bold 13px Poppins';
         ctx.fillStyle = '#051C2C';
         ctx.textBaseline = 'middle';
         chart.data.datasets[0].data.forEach(function(val, i) {
