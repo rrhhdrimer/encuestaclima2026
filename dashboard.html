@@ -34,14 +34,14 @@
   .topbar-sub{font-size:11px;color:var(--muted);margin-top:1px;}
   .topbar-right{display:flex;align-items:center;gap:16px;}
   .last-update{font-size:11px;color:var(--muted);}
-  .btn-refresh{display:flex;align-items:center;gap:6px;background:rgba(182,207,208,0.1);border:1px solid var(--border2);color:var(--sage);font-family:'Poppins',sans-serif;font-size:12px;font-weight:600;padding:7px 14px;border-radius:100px;cursor:pointer;transition:all 0.2s;}
+  .btn-refresh{display:flex;align-items:center;gap:6px;background:rgba(182,207,208,0.1);border:1px solid var(--border2);color:#DDE5ED;font-family:'Poppins',sans-serif;font-size:12px;font-weight:600;padding:7px 14px;border-radius:100px;cursor:pointer;transition:all 0.2s;}
   .btn-refresh:hover{background:rgba(182,207,208,0.18);}
   .btn-refresh svg{width:13px;height:13px;fill:none;stroke:var(--sage);stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;}
 
   /* FILTERS */
   .filters{background:var(--card);border-bottom:1px solid var(--border);padding:14px 32px;display:flex;gap:16px;flex-wrap:wrap;align-items:center;}
   .filter-label{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-right:4px;}
-  .filter-select{background:var(--surface);border:1px solid var(--border2);border-radius:8px;color:var(--silver);font-family:'Poppins',sans-serif;font-size:12px;padding:7px 30px 7px 12px;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23B6CFD0' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;cursor:pointer;}
+  .filter-select{background:var(--surface);border:1px solid var(--border2);border-radius:8px;color:var(--silver);font-family:'Poppins',sans-serif;font-size:12px;padding:7px 30px 7px 12px;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23051C2C' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;cursor:pointer;}
   .filter-select:focus{outline:none;border-color:var(--sage);}
   .responses-badge{margin-left:auto;background:rgba(182,207,208,0.08);border:1px solid var(--border);border-radius:100px;padding:5px 14px;font-size:12px;color:var(--muted);}
   .responses-badge strong{color:var(--sage);}
@@ -103,7 +103,7 @@
   .ranking-table th{font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:#051C2C;text-align:left;padding:8px 12px;border-bottom:1px solid var(--border);}
   .ranking-table td{font-size:13px;color:#051C2C;padding:12px 12px;border-bottom:1px solid rgba(56,73,103,0.06);}
   .ranking-table tr:last-child td{border-bottom:none;}
-  .ranking-table tr:hover td{background:rgba(182,207,208,0.03);}
+  .ranking-table tr:hover td{background:rgba(56,73,103,0.1);}
   .rank-num{font-size:11px;color:#051C2C;font-weight:600;width:32px;}
   .rank-bar-wrap{width:160px;}
   .rank-bar-bg{background:rgba(56,73,103,0.15);border-radius:100px;height:6px;overflow:hidden;}
@@ -725,7 +725,7 @@ function renderChartDims(dimScores) {
           },
           bodyFont: {family:'Poppins', size:12},
           titleFont: {family:'Poppins', size:12},
-          titleColor: '#DDE5ED',
+          titleColor: '#051C2C',
           padding: 14,
           boxPadding: 4,
           displayColors: false
@@ -734,9 +734,9 @@ function renderChartDims(dimScores) {
       },
       scales: {
         x: {
-          grid:{color:'rgba(182,207,208,0.06)'},
+          grid:{color:'rgba(56,73,103,0.2)'},
           ticks:{
-            color:'#B6CFD0',
+            color:'#051C2C',
             font:{
               size: window.innerWidth < 640 ? 8 : 11,
               family:'Poppins'
@@ -762,14 +762,14 @@ function renderChartDims(dimScores) {
             }
           }
         },
-        y: {min:0,max:100,grid:{color:'rgba(182,207,208,0.06)'},ticks:{color:'#B6CFD0',font:{size:11,family:'Poppins'},callback:function(v){return v+'%';}}}
+        y: {min:0,max:100,grid:{color:'rgba(56,73,103,0.2)'},ticks:{color:'#051C2C',font:{size:11,family:'Poppins'},callback:function(v){return v+'%';}}}
       },
       animation: {onComplete: function(anim) {
         const chart = anim.chart;
         const ctx = chart.ctx;
         ctx.save();
         ctx.font = 'bold 11px Poppins';
-        ctx.fillStyle = '#DDE5ED';
+        ctx.fillStyle = '#051C2C';
         ctx.textAlign = 'center';
         chart.data.datasets[0].data.forEach(function(val, i) {
           const meta = chart.getDatasetMeta(0);
@@ -814,15 +814,15 @@ function renderChartGer(gerScores) {
         tooltip:{callbacks:{label:function(c){return ' '+c.raw+'% ('+gerScores[c.dataIndex].n+' resp.)';}}},
       },
       scales: {
-        x: {min:0,max:100,grid:{color:'rgba(182,207,208,0.06)'},ticks:{color:'#B6CFD0',font:{size:11,family:'Poppins'},callback:function(v){return v+'%';}}},
-        y: {grid:{color:'rgba(182,207,208,0.06)'},ticks:{color:'#B6CFD0',font:{size:11,family:'Poppins'}}}
+        x: {min:0,max:100,grid:{color:'rgba(56,73,103,0.2)'},ticks:{color:'#051C2C',font:{size:11,family:'Poppins'},callback:function(v){return v+'%';}}},
+        y: {grid:{color:'rgba(56,73,103,0.2)'},ticks:{color:'#051C2C',font:{size:11,family:'Poppins'}}}
       },
       animation: {onComplete: function(anim) {
         const chart = anim.chart;
         const ctx = chart.ctx;
         ctx.save();
         ctx.font = 'bold 11px Poppins';
-        ctx.fillStyle = '#DDE5ED';
+        ctx.fillStyle = '#051C2C';
         ctx.textBaseline = 'middle';
         chart.data.datasets[0].data.forEach(function(val, i) {
           const meta = chart.getDatasetMeta(0);
