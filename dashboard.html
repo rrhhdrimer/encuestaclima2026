@@ -8,22 +8,22 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
 <style>
   :root {
-    --bg:      #051C2C;
+    --bg:      #DDE5ED;
     --surface: #384967;
     --card:    #0d2238;
     --card2:   #112840;
-    --sage:    #B6CFD0;
+    --sage:    #384967;
     --silver:  #DDE5ED;
-    --muted:   rgba(182,207,208,0.55);
-    --border:  rgba(182,207,208,0.12);
-    --border2: rgba(182,207,208,0.22);
+    --muted:   #6B7D8F;
+    --border:  rgba(56,73,103,0.12);
+    --border2: rgba(56,73,103,0.25);
     --green:   #4caf7d;
     --yellow:  #e8b84b;
     --red:     #e05c5c;
     --r: 12px; --rlg: 18px;
   }
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-  body{font-family:'Poppins',sans-serif;background:var(--bg);color:var(--silver);min-height:100vh;}
+  body{font-family:'Poppins',sans-serif;background:var(--bg);color:#051C2C;min-height:100vh;}
 
   /* TOPBAR */
   .topbar{background:var(--surface);padding:0 32px;display:flex;align-items:center;justify-content:space-between;height:64px;position:sticky;top:0;z-index:100;box-shadow:0 2px 16px rgba(0,0,0,0.3);}
@@ -61,7 +61,7 @@
   .kpi-card.yellow::before{background:var(--yellow);}
   .kpi-card.red::before{background:var(--red);}
   .kpi-card.blue::before{background:var(--sage);}
-  .kpi-card.trust{background:#DDE5ED!important;border-color:rgba(56,73,103,0.2)!important;}
+  .kpi-card.trust{background:#B6CFD0!important;border-color:rgba(56,73,103,0.2)!important;}
   .kpi-card.trust .kpi-label{color:#384967;}
   .kpi-card.trust .kpi-value{color:#051C2C;}
   .kpi-card.trust .kpi-value span{color:#384967;}
