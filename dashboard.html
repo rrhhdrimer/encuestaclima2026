@@ -73,10 +73,10 @@
   .kpi-card.trust .kpi-badge.o{background:rgba(224,122,42,1);color:#7a3a00;border:1px solid rgba(224,122,42,1);}
   .kpi-card.trust .kpi-badge.r{background:rgba(224,92,92,1);color:#8b1a1a;border:1px solid rgba(224,92,92,1);}
 
-  .kpi-label{font-size:10px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:#051C2C;margin-bottom:10px;}
-  .kpi-value{font-size:38px;font-weight:700;color:#051C2C;line-height:1;margin-bottom:6px;}
-  .kpi-value span{font-size:18px;font-weight:400;color:#051C2C;}
-  .kpi-sub{font-size:11px;color:#051C2C;}
+  .kpi-label{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#fff;margin-bottom:10px;}
+  .kpi-value{font-size:38px;font-weight:700;color:#fff;line-height:1;margin-bottom:6px;}
+  .kpi-value span{font-size:18px;font-weight:400;color:#fff;}
+  .kpi-sub{font-size:11px;color:#fff;}
   .kpi-badge{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:600;padding:3px 8px;border-radius:100px;margin-top:8px;}
   .kpi-badge.gd{background:rgba(46,125,50,1);color:#2e7d32;}
   .kpi-badge.g{background:rgba(76,175,125,1);color:#4caf7d;}
@@ -108,12 +108,12 @@
   .rank-bar-wrap{width:160px;}
   .rank-bar-bg{background:rgba(56,73,103,0.15);border-radius:100px;height:6px;overflow:hidden;}
   .rank-bar-fill{height:100%;border-radius:100px;transition:width 0.8s ease;}
-  .score-pill{display:inline-block;font-size:12px;font-weight:700;padding:3px 10px;border-radius:100px;}
-  .score-pill.gd{background:rgba(46,125,50,1);color:#2e7d32;}
-  .score-pill.g{background:rgba(76,175,125,1);color:#4caf7d;}
-  .score-pill.y{background:rgba(232,184,75,1);color:#e8b84b;}
-  .score-pill.o{background:rgba(224,122,42,1);color:#e07a2a;}
-  .score-pill.r{background:rgba(224,92,92,1);color:#e05c5c;}
+  .score-pill{display:inline-block;font-size:12px;font-weight:700;padding:3px 10px;border-radius:100px;color:#fff;}
+  .score-pill.gd{background:rgba(46,125,50,1);color:#fff;}
+  .score-pill.g{background:rgba(76,175,125,1);color:#fff;}
+  .score-pill.y{background:rgba(232,184,75,1);color:#fff;}
+  .score-pill.o{background:rgba(224,122,42,1);color:#fff;}
+  .score-pill.r{background:rgba(224,92,92,1);color:#fff;}
   .min-warning{font-size:10px;color:var(--muted);font-style:italic;}
 
   /* DIMENSION BARS */
@@ -677,7 +677,7 @@ function renderChartDims(dimScores) {
       labels: Object.keys(dimScores),
       datasets: [{
         data: Object.values(dimScores),
-        backgroundColor: Object.values(dimScores).map(function(s){return barColor(s) + '99';}),
+        backgroundColor: Object.values(dimScores).map(function(s){return barColor(s) + 'FF';}),
         borderColor: Object.values(dimScores).map(barColor),
         borderWidth: 2,
         borderRadius: 6
@@ -791,7 +791,7 @@ function renderChartGer(gerScores) {
       labels: gerScores.map(function(g){return g.nombre;}),
       datasets: [{
         data: gerScores.map(function(g){return g.score;}),
-        backgroundColor: gerScores.map(function(g){return barColor(g.score)+'99';}),
+        backgroundColor: gerScores.map(function(g){return barColor(g.score)+'FF';}),
         borderColor: gerScores.map(function(g){return barColor(g.score);}),
         borderWidth: 2,
         borderRadius: 6
