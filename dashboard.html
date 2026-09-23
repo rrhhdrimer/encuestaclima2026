@@ -31,20 +31,20 @@
   .topbar-logo{width:40px;height:40px;border-radius:8px;overflow:hidden;}
   .topbar-logo img{width:100%;height:100%;object-fit:cover;}
   .topbar-title{font-size:15px;font-weight:700;color:#fff;}
-  .topbar-sub{font-size:11px;color:var(--muted);margin-top:1px;}
+  .topbar-sub{font-size:11px;color:#fff;margin-top:1px;}
   .topbar-right{display:flex;align-items:center;gap:16px;}
-  .last-update{font-size:11px;color:var(--muted);}
-  .btn-refresh{display:flex;align-items:center;gap:6px;background:rgba(182,207,208,0.1);border:1px solid var(--border2);color:#DDE5ED;font-family:'Poppins',sans-serif;font-size:12px;font-weight:600;padding:7px 14px;border-radius:100px;cursor:pointer;transition:all 0.2s;}
+  .last-update{font-size:11px;color:#fff;}
+  .btn-refresh{display:flex;align-items:center;gap:6px;background:rgba(182,207,208,0.1);border:1px solid var(--border2);color:#fff;font-family:'Poppins',sans-serif;font-size:12px;font-weight:600;padding:7px 14px;border-radius:100px;cursor:pointer;transition:all 0.2s;}
   .btn-refresh:hover{background:rgba(182,207,208,0.18);}
-  .btn-refresh svg{width:13px;height:13px;fill:none;stroke:var(--sage);stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;}
+  .btn-refresh svg{width:13px;height:13px;fill:none;stroke:#fff;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;}
 
   /* FILTERS */
   .filters{background:var(--card);border-bottom:1px solid var(--border);padding:14px 32px;display:flex;gap:16px;flex-wrap:wrap;align-items:center;}
-  .filter-label{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-right:4px;}
+  .filter-label{font-size:11px;font-weight:600;color:#fff;text-transform:uppercase;letter-spacing:1px;margin-right:4px;}
   .filter-select{background:var(--surface);border:1px solid var(--border2);border-radius:8px;color:var(--silver);font-family:'Poppins',sans-serif;font-size:12px;padding:7px 30px 7px 12px;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23051C2C' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;cursor:pointer;}
   .filter-select:focus{outline:none;border-color:var(--sage);}
-  .responses-badge{margin-left:auto;background:rgba(182,207,208,0.08);border:1px solid var(--border);border-radius:100px;padding:5px 14px;font-size:12px;color:var(--muted);}
-  .responses-badge strong{color:var(--sage);}
+  .responses-badge{margin-left:auto;background:rgba(182,207,208,0.08);border:1px solid var(--border);border-radius:100px;padding:5px 14px;font-size:12px;color:#fff;}
+  .responses-badge strong{color:#fff;}
 
   /* MAIN */
   .main{padding:28px 32px;max-width:1200px;margin:0 auto;}
@@ -67,22 +67,22 @@
   .kpi-card.trust .kpi-value span{color:#051C2C;}
   .kpi-card.trust .kpi-sub{color:#051C2C;}
   .kpi-card.trust .kpi-badge{background:rgba(56,73,103,0.1);color:#051C2C;}
-  .kpi-card.trust .kpi-badge.gd{background:rgba(46,125,50,1);color:#1a5c1e;border:1px solid rgba(46,125,50,1);}
-  .kpi-card.trust .kpi-badge.g{background:rgba(76,175,125,1);color:#2e7d32;border:1px solid rgba(76,175,125,1);}
-  .kpi-card.trust .kpi-badge.y{background:rgba(232,184,75,1);color:#7a5c00;border:1px solid rgba(232,184,75,1);}
-  .kpi-card.trust .kpi-badge.o{background:rgba(224,122,42,1);color:#7a3a00;border:1px solid rgba(224,122,42,1);}
-  .kpi-card.trust .kpi-badge.r{background:rgba(224,92,92,1);color:#8b1a1a;border:1px solid rgba(224,92,92,1);}
+  .kpi-card.trust .kpi-badge.gd{background:rgba(46,125,50,1);color:#000;border:1px solid rgba(46,125,50,1);}
+  .kpi-card.trust .kpi-badge.g{background:rgba(76,175,125,1);color:#000;border:1px solid rgba(76,175,125,1);}
+  .kpi-card.trust .kpi-badge.y{background:rgba(232,184,75,1);color:#000;border:1px solid rgba(232,184,75,1);}
+  .kpi-card.trust .kpi-badge.o{background:rgba(224,122,42,1);color:#000;border:1px solid rgba(224,122,42,1);}
+  .kpi-card.trust .kpi-badge.r{background:rgba(224,92,92,1);color:#000;border:1px solid rgba(224,92,92,1);}
 
   .kpi-label{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#051C2C;margin-bottom:10px;}
   .kpi-value{font-size:38px;font-weight:700;color:#051C2C;line-height:1;margin-bottom:6px;}
   .kpi-value span{font-size:18px;font-weight:400;color:#051C2C;}
   .kpi-sub{font-size:11px;color:#051C2C;}
   .kpi-badge{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:600;padding:3px 8px;border-radius:100px;margin-top:8px;}
-  .kpi-badge.gd{background:rgba(46,125,50,1);color:#2e7d32;}
-  .kpi-badge.g{background:rgba(76,175,125,1);color:#4caf7d;}
-  .kpi-badge.y{background:rgba(232,184,75,1);color:#e8b84b;}
-  .kpi-badge.o{background:rgba(224,122,42,1);color:#e07a2a;}
-  .kpi-badge.r{background:rgba(224,92,92,1);color:#e05c5c;}
+  .kpi-badge.gd{background:rgba(46,125,50,1);color:#000;}
+  .kpi-badge.g{background:rgba(76,175,125,1);color:#000;}
+  .kpi-badge.y{background:rgba(232,184,75,1);color:#000;}
+  .kpi-badge.o{background:rgba(224,122,42,1);color:#000;}
+  .kpi-badge.r{background:rgba(224,92,92,1);color:#000;}
 
   /* CHARTS GRID */
   .charts-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px;}
@@ -226,8 +226,8 @@
 
   /* FOOTER */
   .footer{text-align:center;padding:32px;font-size:11px;color:var(--muted);border-top:1px solid var(--border);margin-top:16px;}
-  .auto-badge{display:inline-flex;align-items:center;gap:5px;background:rgba(76,175,125,1);border:1px solid rgba(76,175,125,1);color:var(--green);font-size:10px;font-weight:600;padding:3px 10px;border-radius:100px;}
-  .dot{width:6px;height:6px;background:var(--green);border-radius:50%;animation:pulse 2s infinite;}
+  .auto-badge{display:inline-flex;align-items:center;gap:5px;background:rgba(76,175,125,1);border:1px solid rgba(76,175,125,1);color:#fff;font-size:10px;font-weight:600;padding:3px 10px;border-radius:100px;}
+  .dot{width:6px;height:6px;background:#fff;border-radius:50%;animation:pulse 2s infinite;}
   @keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.4;}}
 </style>
 </head>
