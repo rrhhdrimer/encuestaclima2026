@@ -20,8 +20,8 @@
   .topbar-logo{width:40px;height:40px;border-radius:8px;overflow:hidden;}
   .topbar-logo img{width:100%;height:100%;object-fit:cover;}
   .topbar-title{font-size:15px;font-weight:700;color:#fff;}
-  .topbar-sub{font-size:11px;color:var(--muted);margin-top:1px;}
-  .btn-back{display:flex;align-items:center;gap:6px;background:rgba(182,207,208,0.1);border:1px solid var(--border2);color:var(--sage);font-family:'Poppins',sans-serif;font-size:12px;font-weight:600;padding:7px 14px;border-radius:100px;cursor:pointer;text-decoration:none;transition:all 0.2s;}
+  .topbar-sub{font-size:11px;color:#fff;margin-top:1px;}
+  .btn-back{display:flex;align-items:center;gap:6px;background:rgba(182,207,208,0.1);border:1px solid var(--border2);color:#fff;font-family:'Poppins',sans-serif;font-size:12px;font-weight:600;padding:7px 14px;border-radius:100px;cursor:pointer;text-decoration:none;transition:all 0.2s;}
   .btn-back:hover{background:rgba(182,207,208,0.18);}
 
   .main{max-width:960px;margin:0 auto;padding:32px 24px 80px;}
@@ -29,9 +29,9 @@
   /* HERO */
   .hero{background:var(--surface);border-radius:var(--rlg);padding:28px 32px;margin-bottom:28px;display:flex;align-items:center;gap:20px;}
   .hero-icon{font-size:36px;width:64px;height:64px;background:rgba(182,207,208,0.1);border-radius:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
-  .hero-eyebrow{font-size:10px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:6px;}
+  .hero-eyebrow{font-size:10px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:#fff;margin-bottom:6px;}
   .hero-title{font-size:24px;font-weight:700;color:#fff;margin-bottom:4px;}
-  .hero-sub{font-size:13px;color:var(--muted);}
+  .hero-sub{font-size:13px;color:#fff;}
   .hero-score{margin-left:auto;text-align:center;flex-shrink:0;}
   .hero-score-val{font-size:48px;font-weight:700;line-height:1;}
   .hero-score-lbl{font-size:12px;color:var(--muted);margin-top:4px;}
@@ -222,7 +222,7 @@ const DIMS = {
 };
 
 const ESC_LABELS = ['Nunca','Rara vez','A veces','Frecuentemente','Siempre'];
-const ESC_COLORS = ['#e05c5c','#e07a2a','#e8b84b','#4caf7d','#2e7d32'];
+const ESC_COLORS = ['#7B8799','#7B8799','#7B8799','#7B8799','#7B8799'];
 
 function barColor(s) {
   if (s >= 90) return '#2e7d32';
@@ -375,7 +375,7 @@ function renderDimension(datosTotales) {
       const nNo = vals.length - nOk;
       const dist = [nOk, nNo];
       const etiquetas = ['Correcta', 'Incorrecta o "No s\u00e9"'];
-      const colores = ['#2e7d32', '#e05c5c'];
+      const colores = ['#7B8799', '#7B8799'];
       const maxDist = Math.max(nOk, nNo, 1);
       distHTML = dist.map(function(n, di) {
         const h = Math.round(n / maxDist * 100);
@@ -441,8 +441,8 @@ function renderDimension(datosTotales) {
         '<div class="hero-sub" style="margin-top:8px;font-weight:600">\u{1F4CD} ' + contexto + '</div>' +
       '</div>' +
       '<div class="hero-score">' +
-        '<div class="hero-score-val" style="color:' + bc + '">' + scoreGlobal + '<span style="font-size:20px;color:var(--muted)">%</span></div>' +
-        '<div class="hero-score-lbl">' + etiquetaScore + '</div>' +
+        '<div class="hero-score-val" style="color:' + bc + '">' + scoreGlobal + '<span style="font-size:20px">%</span></div>' +
+        '<div class="hero-score-lbl" style="color:' + bc + '">' + etiquetaScore + '</div>' +
         '<div class="hero-score-badge" style="background:' + bc + '22;color:' + bc + ';border:1px solid ' + bc + '44">' + scoreLabel(scoreGlobal) + '</div>' +
       '</div>' +
     '</div>' +
@@ -526,8 +526,8 @@ function renderJefe(allData) {
         '<div class="hero-sub">' + rows.length + ' evaluaciones recibidas</div>' +
       '</div>' +
       '<div class="hero-score">' +
-        '<div class="hero-score-val" style="color:' + bc + '">' + scoreGlobal + '<span style="font-size:20px;color:var(--muted)">%</span></div>' +
-        '<div class="hero-score-lbl">Score liderazgo</div>' +
+        '<div class="hero-score-val" style="color:' + bc + '">' + scoreGlobal + '<span style="font-size:20px">%</span></div>' +
+        '<div class="hero-score-lbl" style="color:' + bc + '">Score liderazgo</div>' +
         '<div class="hero-score-badge" style="background:' + bc + '22;color:' + bc + ';border:1px solid ' + bc + '44">' + scoreLabel(scoreGlobal) + '</div>' +
       '</div>' +
     '</div>' +
