@@ -137,6 +137,7 @@
 </div>
 
 <script>
+const SHEETS_ID = '1IT_sRqzsuMteZ9rNdHGM95uH605CO2VlBPQd17hMQaw';
 const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw73i0Y6g7Hk5VAcDAU8IHFw5kW1RMskfQXmvudHDsxqwcU1hge8QWn2TXASAiJVs8VGw/exec';
 
 const PREGUNTAS = {
@@ -242,6 +243,37 @@ function scoreLabel(s) {
 const params = new URLSearchParams(window.location.search);
 const tipo  = params.get('tipo');  // 'dimension' o 'jefe'
 const nombre = decodeURIComponent(params.get('nombre') || '');
+const fEmpresa  = params.get('empresa')  || '';
+const fGerencia = params.get('gerencia') || '';
+const MIN_RESP = 5;   // minimo de respuestas para mostrar detalle (anonimato)
+
+// Boton volver: regresa al dashboard con los mismos filtros
+(function() {
+  const q = new URLSearchParams();
+  if (fEmpresa)  q.set('empresa', fEmpresa);
+  if (fGerencia) q.set('gerencia', fGerencia);
+  const qs = q.toString();
+  document.querySelector('.btn-back').href = 'dashboard.html' + (qs ? '?' + qs : '');
+})();
+
+// Gerencia de cada jefe (pestana Estructura). Liderazgo se filtra por la
+// gerencia del JEFE EVALUADO, igual que en el dashboard.
+let GER_DE_JEFE = {};
+async function cargarEstructura() {
+  try {
+    const url = "https://docs.google.com/spreadsheets/d/" + SHEETS_ID + "/gviz/tq?tqx=out:json&sheet=Estructura";
+    const txt = await (await fetch(url)).text();
+    const json = JSON.parse(txt.substring(47).slice(0, -2));
+    json.table.rows.forEach(function(r) {
+      const g = r.c[0] && r.c[0].v ? String(r.c[0].v).trim() : null;
+      const j = r.c[2] && r.c[2].v ? String(r.c[2].v).trim() : null;
+      if (g && j) GER_DE_JEFE[j.toUpperCase()] = g;
+    });
+  } catch (e) { console.error('No se pudo cargar la Estructura:', e); }
+}
+function gerenciaDelJefe(r) {
+  return GER_DE_JEFE[String(r.jefe || '').trim().toUpperCase()] || '';
+}
 
 const MUJERES = new Set(["CLAUDIA MOGOLLON", "CRISTINA SAKATA", "EDITH VILLENA", "GISELA URIBE", "JEANETTE AGUIRRE", "KARIM GIL", "KARINA DURAND", "MARGOT PERALTA", "MARILÚ MATSUTAHARA", "MELODY ZAVALA", "PAOLA GOMEZ", "PATRICIA ENCINAS", "SILVANA SATO"]);
 function iconoJefe(nombre) { return MUJERES.has((nombre||'').toUpperCase()) ? '👩' : '👨'; }
@@ -251,6 +283,7 @@ async function cargarDatos() {
     const res = await fetch(APPS_SCRIPT_URL);
     const json = await res.json();
     const rows = (json.data || []).filter(function(r){ return r.gerencia; });
+    if (tipo === 'dimension' && nombre === 'Liderazgo' && fGerencia) await cargarEstructura();
     renderDetalle(rows);
   } catch(e) {
     document.getElementById('loading').innerHTML = '<div class="empty">Error al cargar datos. Intenta recargar la página.</div>';
@@ -284,12 +317,29 @@ function renderDetalle(allData) {
   }
 }
 
-function renderDimension(allData) {
+function renderDimension(datosTotales) {
   const dim = DIMS[nombre];
   if (!dim) { document.getElementById('content').innerHTML = '<div class="empty">Dimensi\u00f3n no encontrada.</div>'; return; }
 
+  // Aplicar los mismos filtros del dashboard
+  let allData = datosTotales.filter(function(r) { return !fEmpresa || r.empresa === fEmpresa; });
+  if (fGerencia) {
+    allData = allData.filter(function(r) {
+      const g = (nombre === 'Liderazgo') ? gerenciaDelJefe(r) : r.gerencia;
+      return g === fGerencia;
+    });
+  }
+  const contexto = [fGerencia || 'Todas las gerencias', fEmpresa || 'Todas las empresas'].join(' \u00b7 ');
+
   document.getElementById('topbar-title').textContent = 'Detalle \u00b7 ' + nombre;
   document.title = 'Detalle \u00b7 ' + nombre;
+
+  if (allData.length < MIN_RESP) {
+    document.getElementById('content').innerHTML = '<div class="empty">' + contexto +
+      ' tiene ' + allData.length + ' respuesta(s) en esta dimensi\u00f3n. Se necesitan al menos ' + MIN_RESP +
+      ' para mostrar el detalle y proteger el anonimato.</div>';
+    return;
+  }
 
   const esCultura = dim.tipo === 'cultura';
   const calc = esCultura ? calcAcierto : calcPct;
@@ -308,7 +358,7 @@ function renderDimension(allData) {
 
   // Detalle por pregunta
   const pqs = dim.preguntas;
-  let preguntasHTML = '';
+  const filas = [];
   pqs.forEach(function(item, i) {
     const idx = dim.start + i;
     const texto = esCultura ? item.t : item;
@@ -356,7 +406,7 @@ function renderDimension(allData) {
       ? '<div style="font-size:11px;color:var(--muted);margin-top:6px">Respuesta correcta: <span style="color:#4caf7d;font-weight:600">' + item.correcta + '</span></div>'
       : '';
 
-    preguntasHTML +=
+    filas.push({pct: pct, idx: idx, html:
       '<div class="pregunta-row">' +
         '<div class="pregunta-top">' +
           '<div class="pregunta-num">P' + (idx+1) + '</div>' +
@@ -369,13 +419,17 @@ function renderDimension(allData) {
           '<span class="barra-100">100</span>' +
         '</div>' +
         '<div class="dist-wrap">' + distHTML + '</div>' +
-      '</div>';
+      '</div>'});
   });
+
+  // De mayor a menor %; en empate, por numero de pregunta
+  filas.sort(function(x, y) { return (y.pct - x.pct) || (x.idx - y.idx); });
+  const preguntasHTML = filas.map(function(f) { return f.html; }).join('');
 
   const etiquetaScore = esCultura ? '% de aciertos' : 'Score dimensi\u00f3n';
   const subDetalle = esCultura
-    ? '% de respuestas correctas por pregunta \u00b7 Se considera conocimiento consolidado a partir de 80%'
-    : '% de respuestas favorables (4-5) por cada pregunta \u00b7 Con distribuci\u00f3n de respuestas';
+    ? '% de respuestas correctas por pregunta, de mayor a menor \u00b7 Se considera conocimiento consolidado a partir de 80%'
+    : '% de respuestas favorables (4-5) por pregunta, de mayor a menor \u00b7 Con distribuci\u00f3n de respuestas';
 
   document.getElementById('content').innerHTML =
     '<div class="hero">' +
@@ -384,6 +438,7 @@ function renderDimension(allData) {
         '<div class="hero-eyebrow">Detalle de dimensi\u00f3n</div>' +
         '<div class="hero-title">' + nombre + '</div>' +
         '<div class="hero-sub">' + dim.sub + '</div>' +
+        '<div class="hero-sub" style="margin-top:8px;font-weight:600">\u{1F4CD} ' + contexto + '</div>' +
       '</div>' +
       '<div class="hero-score">' +
         '<div class="hero-score-val" style="color:' + bc + '">' + scoreGlobal + '<span style="font-size:20px;color:var(--muted)">%</span></div>' +
@@ -422,7 +477,7 @@ function renderJefe(allData) {
   const scoreGlobal = calcPct(allVals);
   const bc = barColor(scoreGlobal);
 
-  let preguntasHTML = '';
+  const filas = [];
   PREGUNTAS.liderazgo.forEach(function(texto, i) {
     const vals = rows.map(function(r){ return parseInt(r.respuestas[i]); }).filter(function(v){ return !isNaN(v) && v > 0; });
     const pct = calcPct(vals);
@@ -442,7 +497,7 @@ function renderJefe(allData) {
       '</div>';
     }).join('');
 
-    preguntasHTML +=
+    filas.push({pct: pct, idx: i, html:
       '<div class="pregunta-row">' +
         '<div class="pregunta-top">' +
           '<div class="pregunta-num">P' + (i+1) + '</div>' +
@@ -455,8 +510,12 @@ function renderJefe(allData) {
           '<span class="barra-100">100</span>' +
         '</div>' +
         '<div class="dist-wrap">' + distHTML + '</div>' +
-      '</div>';
+      '</div>'});
   });
+
+  // De mayor a menor %; en empate, por numero de pregunta
+  filas.sort(function(x, y) { return (y.pct - x.pct) || (x.idx - y.idx); });
+  const preguntasHTML = filas.map(function(f) { return f.html; }).join('');
 
   document.getElementById('content').innerHTML =
     '<div class="hero">' +
@@ -478,7 +537,7 @@ function renderJefe(allData) {
       '<div class="resumen-card"><div class="resumen-label">Score liderazgo</div><div class="resumen-val" style="color:' + bc + '">' + scoreGlobal + '<span>%</span></div><div class="resumen-sub">' + scoreLabel(scoreGlobal) + '</div></div>' +
     '</div>' +
     '<div class="section-title">Detalle por pregunta</div>' +
-    '<div class="section-sub">% de respuestas favorables (4-5) · Con distribución de cada respuesta</div>' +
+    '<div class="section-sub">% de respuestas favorables (4-5) por pregunta, de mayor a menor · Con distribución de cada respuesta</div>' +
     preguntasHTML;
 }
 

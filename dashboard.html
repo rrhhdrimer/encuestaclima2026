@@ -120,6 +120,9 @@
   .dim-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px;}
   @media(max-width:700px){.dim-grid{grid-template-columns:1fr;}}
   .dim-card{background:#DDE5ED;border:1px solid var(--border);border-radius:var(--rlg);padding:24px;}
+  .dim-card.clic{cursor:pointer;transition:border-color 0.2s,transform 0.2s;}
+  .dim-card.clic:hover{border-color:#384967;transform:translateY(-2px);}
+  .dim-ver{font-size:11px;font-weight:600;color:#384967;margin-top:10px;text-decoration:underline;}
   .dim-card-title{font-size:13px;font-weight:700;color:#051C2C;margin-bottom:16px;display:flex;align-items:center;gap:8px;}
   .dim-row{margin-bottom:14px;}
   .dim-row-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;}
@@ -313,6 +316,32 @@ const DIMS = {
 let allData = [];
 let filteredData = [];
 
+// ---------- NAVEGACION AL DETALLE (respeta filtros) ----------
+const PARAMS_INI = new URLSearchParams(window.location.search);
+let gerenciaInicial = PARAMS_INI.get('gerencia') || '';
+(function() {
+  const e = PARAMS_INI.get('empresa');
+  if (e) document.getElementById('f-empresa').value = e;
+})();
+
+function urlConFiltros(base) {
+  const fe = document.getElementById('f-empresa').value;
+  const fg = document.getElementById('f-gerencia').value;
+  let url = base;
+  if (fe) url += '&empresa=' + encodeURIComponent(fe);
+  if (fg) url += '&gerencia=' + encodeURIComponent(fg);
+  return url;
+}
+
+function abrirDetalle(url, evt) {
+  if (evt && (evt.ctrlKey || evt.metaKey)) window.open(url, '_blank');
+  else window.location.href = url;
+}
+
+function irADimension(dim, evt) {
+  abrirDetalle(urlConFiltros('detalle.html?tipo=dimension&nombre=' + encodeURIComponent(dim)), evt);
+}
+
 const MUJERES = new Set(["CLAUDIA MOGOLLON", "CRISTINA SAKATA", "EDITH VILLENA", "GISELA URIBE", "JEANETTE AGUIRRE", "KARIM GIL", "KARINA DURAND", "MARGOT PERALTA", "MARILÚ MATSUTAHARA", "MELODY ZAVALA", "PAOLA GOMEZ", "PATRICIA ENCINAS", "SILVANA SATO"]);
 function iconoJefe(nombre) { return MUJERES.has((nombre||'').toUpperCase()) ? '👩' : '👨'; }
 
@@ -437,7 +466,8 @@ async function cargarDatos() {
              .concat(allData.map(gerenciaDelJefe))
     )].filter(Boolean).sort();
     const fg = document.getElementById('f-gerencia');
-    const curG = fg.value;
+    const curG = fg.value || gerenciaInicial;
+    gerenciaInicial = '';
     fg.innerHTML = '<option value="">Todas las gerencias</option>';
     gerencias.forEach(function(g) {
       const o = document.createElement('option');
@@ -589,12 +619,13 @@ function renderDashboard() {
     document.querySelectorAll('.jefe-row').forEach(function(row) {
       row.addEventListener('click', function(e) {
         const nombre = this.getAttribute('data-jefe');
-        const url = 'detalle.html?tipo=jefe&nombre=' + encodeURIComponent(nombre);
-        if (e.ctrlKey || e.metaKey) {
-          window.open(url, '_blank');
-        } else {
-          window.location.href = url;
-        }
+        abrirDetalle(urlConFiltros('detalle.html?tipo=jefe&nombre=' + encodeURIComponent(nombre)), e);
+      });
+    });
+    // Clic en tarjetas de dimension
+    document.querySelectorAll('.dim-card.clic').forEach(function(card) {
+      card.addEventListener('click', function(e) {
+        irADimension(this.getAttribute('data-dim'), e);
       });
     });
   }, 100);
@@ -645,7 +676,7 @@ function dimCard(nombre, icon, score, color) {
   const dim = DIMS[nombre];
   const sub = dim ? dim.sub : '';
   const etiqueta = (dim && dim.tipo === 'cultura') ? '% de aciertos' : '% favorable';
-  return '<div class="dim-card">' +
+  return '<div class="dim-card clic" data-dim="' + nombre + '" title="Ver detalle por pregunta">' +
     '<div class="dim-card-title">' + icon + ' ' + nombre + '</div>' +
     (sub ? '<div style="font-size:11px;color:var(--muted);margin-bottom:14px;line-height:1.5">' + sub + '</div>' : '') +
     '<div class="dim-row">' +
@@ -653,6 +684,7 @@ function dimCard(nombre, icon, score, color) {
       '<div class="dim-bar-bg"><div class="dim-bar-fill" style="width:' + score + '%;background:' + bc + '"></div></div>' +
     '</div>' +
     '<div style="margin-top:12px;font-size:11px;color:var(--muted)">Interpretación: <span style="color:' + bc + ';font-weight:600">' + scoreLabel(score) + '</span></div>' +
+    '<div class="dim-ver">Ver detalle por pregunta</div>' +
   '</div>';
 }
 
@@ -687,16 +719,10 @@ function renderChartDims(dimScores) {
       responsive: true, maintainAspectRatio: false,
       devicePixelRatio: window.devicePixelRatio || 1,
       layout: {padding: {top: 24}},
-      onClick: function(evt, elements) {
+      onClick: function(evt, elements, chart) {
         if (elements.length > 0) {
-          const idx = elements[0].index;
-          const dim = Object.keys(DIMS)[idx];
-          const url = 'detalle.html?tipo=dimension&nombre=' + encodeURIComponent(dim);
-          if (evt.native && (evt.native.ctrlKey || evt.native.metaKey)) {
-            window.open(url, '_blank');
-          } else {
-            window.location.href = url;
-          }
+          const dim = chart.data.labels[elements[0].index];
+          irADimension(dim, evt.native);
         }
       },
       plugins: {
