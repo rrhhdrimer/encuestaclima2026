@@ -137,7 +137,6 @@
 </div>
 
 <script>
-const SHEETS_ID = '1IT_sRqzsuMteZ9rNdHGM95uH605CO2VlBPQd17hMQaw';
 const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw73i0Y6g7Hk5VAcDAU8IHFw5kW1RMskfQXmvudHDsxqwcU1hge8QWn2TXASAiJVs8VGw/exec';
 
 const PREGUNTAS = {
@@ -244,7 +243,7 @@ const params = new URLSearchParams(window.location.search);
 const tipo  = params.get('tipo');  // 'dimension' o 'jefe'
 const nombre = decodeURIComponent(params.get('nombre') || '');
 const fEmpresa  = params.get('empresa')  || '';
-const fGerencia = params.get('gerencia') || '';
+let fGerencia = params.get('gerencia') || '';
 const MIN_RESP = 5;   // minimo de respuestas para mostrar detalle (anonimato)
 
 // Boton volver: regresa al dashboard con los mismos filtros
@@ -259,18 +258,6 @@ const MIN_RESP = 5;   // minimo de respuestas para mostrar detalle (anonimato)
 // Gerencia de cada jefe (pestana Estructura). Liderazgo se filtra por la
 // gerencia del JEFE EVALUADO, igual que en el dashboard.
 let GER_DE_JEFE = {};
-async function cargarEstructura() {
-  try {
-    const url = "https://docs.google.com/spreadsheets/d/" + SHEETS_ID + "/gviz/tq?tqx=out:json&sheet=Estructura";
-    const txt = await (await fetch(url)).text();
-    const json = JSON.parse(txt.substring(47).slice(0, -2));
-    json.table.rows.forEach(function(r) {
-      const g = r.c[0] && r.c[0].v ? String(r.c[0].v).trim() : null;
-      const j = r.c[2] && r.c[2].v ? String(r.c[2].v).trim() : null;
-      if (g && j) GER_DE_JEFE[j.toUpperCase()] = g;
-    });
-  } catch (e) { console.error('No se pudo cargar la Estructura:', e); }
-}
 function gerenciaDelJefe(r) {
   return GER_DE_JEFE[String(r.jefe || '').trim().toUpperCase()] || '';
 }
@@ -278,12 +265,26 @@ function gerenciaDelJefe(r) {
 const MUJERES = new Set(["CLAUDIA MOGOLLON", "CRISTINA SAKATA", "EDITH VILLENA", "GISELA URIBE", "JEANETTE AGUIRRE", "KARIM GIL", "KARINA DURAND", "MARGOT PERALTA", "MARILÚ MATSUTAHARA", "MELODY ZAVALA", "PAOLA GOMEZ", "PATRICIA ENCINAS", "SILVANA SATO"]);
 function iconoJefe(nombre) { return MUJERES.has((nombre||'').toUpperCase()) ? '👩' : '👨'; }
 
+// Sesion iniciada en el dashboard (gerencia + DNI). Sin sesion, vuelve al ingreso.
+const SESION_KEY = 'climaAcceso2026';
+function getSesion() {
+  try { return JSON.parse(sessionStorage.getItem(SESION_KEY)); } catch (e) { return null; }
+}
+
 async function cargarDatos() {
+  const s = getSesion();
+  if (!s) { window.location.href = 'dashboard.html'; return; }
   try {
-    const res = await fetch(APPS_SCRIPT_URL);
-    const json = await res.json();
+    const url = APPS_SCRIPT_URL + '?gerencia=' + encodeURIComponent(s.gerencia) + '&dni=' + encodeURIComponent(s.dni);
+    const json = await (await fetch(url)).json();
+    if (json.error === 'acceso') {
+      try { sessionStorage.removeItem(SESION_KEY); } catch (e) {}
+      window.location.href = 'dashboard.html';
+      return;
+    }
+    GER_DE_JEFE = json.mapaJefes || {};
     const rows = (json.data || []).filter(function(r){ return r.gerencia; });
-    if (tipo === 'dimension' && nombre === 'Liderazgo' && fGerencia) await cargarEstructura();
+    if (json.rol === 'gerencia' && rows.length) fGerencia = rows[0].gerencia;
     renderDetalle(rows);
   } catch(e) {
     document.getElementById('loading').innerHTML = '<div class="empty">Error al cargar datos. Intenta recargar la página.</div>';
