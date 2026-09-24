@@ -237,7 +237,6 @@
   .login-btn:disabled{opacity:0.6;cursor:wait;}
   .login-error{font-size:12px;color:#b3261e;margin-top:12px;line-height:1.5;min-height:18px;}
   .user-chip{font-size:11px;font-weight:600;color:#fff;border:1px solid rgba(255,255,255,0.4);border-radius:100px;padding:4px 12px;}
-  .kpi-card.empresa{background:#fff!important;}
 
   /* FOOTER */
   .footer{text-align:center;padding:32px;font-size:11px;color:var(--muted);border-top:1px solid var(--border);margin-top:16px;}
@@ -441,7 +440,6 @@ let GER_DE_JEFE = {};
 // ---------- ACCESO POR GERENCIA + DNI ----------
 const SESION_KEY = 'climaAcceso2026';
 let ROL = '';             // 'total' o 'gerencia'
-let INDICE_EMPRESA = null;
 
 function getSesion() {
   try { return JSON.parse(sessionStorage.getItem(SESION_KEY)); } catch (e) { return null; }
@@ -538,7 +536,6 @@ async function cargarDatos() {
 
 function procesarDatos(json) {
   ROL = json.rol || '';
-  INDICE_EMPRESA = (json.indiceEmpresa === undefined) ? null : json.indiceEmpresa;
   GER_DE_JEFE = json.mapaJefes || {};
   allData = (json.data || []).filter(function(r) { return r.gerencia; });
 
@@ -672,11 +669,7 @@ function renderDashboard() {
       kpiCard('Dimensión de clima más baja', minClima, '%', dimMinNombre, scoreColor(minClima), 'Prioridad de intervención', 'red');
 
   const esGerente = (ROL === 'gerencia');
-  const kpisFinal = (esGerente && INDICE_EMPRESA !== null)
-    ? kpis.replace('<div class="kpi-card blue">',
-        kpiCard('Índice de Clima · Empresa', INDICE_EMPRESA, '%', '', '', 'Referencia: toda la organización', 'empresa') +
-        '<div class="kpi-card blue">')
-    : kpis;
+  const kpisFinal = kpis;
 
   const subDims = esGG
     ? '% favorable en las 20 preguntas de Liderazgo'
