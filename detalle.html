@@ -258,6 +258,19 @@ const MIN_RESP = 5;   // minimo de respuestas para mostrar detalle (anonimato)
 // Gerencia de cada jefe (pestana Estructura). Liderazgo se filtra por la
 // gerencia del JEFE EVALUADO, igual que en el dashboard.
 let GER_DE_JEFE = {};
+// Gerencias que se muestran completas aunque tengan menos de 5 respuestas
+// (decisión de Talento Humano). Escribir el nombre tal como está en Estructura.
+const GERENCIAS_SIN_MINIMO = ['MARKETING'];
+// Jefes que se muestran aunque tengan menos de 5 evaluaciones.
+const JEFES_SIN_MINIMO = ['KARINA DURAND'];
+function sinMinimo(gerencia) {
+  return GERENCIAS_SIN_MINIMO.indexOf(String(gerencia || '').trim().toUpperCase()) !== -1;
+}
+function jefeSinMinimo(nombreJefe) {
+  const j = String(nombreJefe || '').trim().toUpperCase();
+  return JEFES_SIN_MINIMO.indexOf(j) !== -1 || sinMinimo(GER_DE_JEFE[j]);
+}
+
 function gerenciaDelJefe(r) {
   return GER_DE_JEFE[String(r.jefe || '').trim().toUpperCase()] || '';
 }
@@ -335,7 +348,7 @@ function renderDimension(datosTotales) {
   document.getElementById('topbar-title').textContent = 'Detalle \u00b7 ' + nombre;
   document.title = 'Detalle \u00b7 ' + nombre;
 
-  if (allData.length < MIN_RESP) {
+  if (allData.length < MIN_RESP && !sinMinimo(fGerencia)) {
     document.getElementById('content').innerHTML = '<div class="empty">' + contexto +
       ' tiene ' + allData.length + ' respuesta(s) en esta dimensi\u00f3n. Se necesitan al menos ' + MIN_RESP +
       ' para mostrar el detalle y proteger el anonimato.</div>';
@@ -462,7 +475,7 @@ function renderJefe(allData) {
   document.getElementById('topbar-title').textContent = 'Detalle · ' + nombre;
   document.title = 'Detalle · ' + nombre;
 
-  if (rows.length < 5) {
+  if (rows.length < 5 && !jefeSinMinimo(nombre)) {
     document.getElementById('content').innerHTML = '<div class="empty">Este jefe tiene menos de 5 evaluaciones. No se puede mostrar el detalle para proteger el anonimato.</div>';
     return;
   }

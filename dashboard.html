@@ -437,6 +437,19 @@ const DIMS_CLIMA = Object.keys(DIMS).filter(function(k){ return DIMS[k].tipo !==
 // Es lo que permite agrupar Liderazgo por el jefe evaluado y no por lo declarado.
 let GER_DE_JEFE = {};
 
+// Gerencias que se muestran completas aunque tengan menos de 5 respuestas
+// (decisión de Talento Humano). Escribir el nombre tal como está en Estructura.
+const GERENCIAS_SIN_MINIMO = ['MARKETING'];
+// Jefes que se muestran aunque tengan menos de 5 evaluaciones.
+const JEFES_SIN_MINIMO = ['KARINA DURAND'];
+function sinMinimo(gerencia) {
+  return GERENCIAS_SIN_MINIMO.indexOf(String(gerencia || '').trim().toUpperCase()) !== -1;
+}
+function jefeSinMinimo(nombreJefe) {
+  const j = String(nombreJefe || '').trim().toUpperCase();
+  return JEFES_SIN_MINIMO.indexOf(j) !== -1 || sinMinimo(GER_DE_JEFE[j]);
+}
+
 // ---------- ACCESO POR GERENCIA + DNI ----------
 const SESION_KEY = 'climaAcceso2026';
 let ROL = '';             // 'total' o 'gerencia'
@@ -657,7 +670,7 @@ function renderDashboard() {
       dimJ[k] = calcDim(rows, k);
     });
     return {nombre: j, score: pctFavorable(rows, 1, 20), n: rows.length, dims: dimJ};
-  }).filter(function(j){return j.n >= 5;}).sort(function(a,b){return b.score-a.score;});
+  }).filter(function(j){return j.n >= 5 || jefeSinMinimo(j.nombre);}).sort(function(a,b){return b.score-a.score;});
 
   // ---- KPIs ----
   const kpis = esGG
@@ -702,7 +715,7 @@ function renderDashboard() {
     // Ranking de jefes: se muestra siempre
     '<div class="table-card">' +
       '<div class="table-title">Ranking de jefes inmediatos</div>' +
-      '<div class="table-sub">Score basado en las 20 preguntas de Liderazgo (P1–P20). Solo se muestran jefes con 5 o más respuestas. <span style="color:var(--sage)">· Clic en una fila para ver detalle</span></div>' +
+      '<div class="table-sub">Score basado en las 20 preguntas de Liderazgo (P1–P20). Solo se muestran jefes con 5 o más respuestas (excepto Jeanette Aguirre y Karina Durand). <span style="color:var(--sage)">· Clic en una fila para ver detalle</span></div>' +
       renderTablaJefes(jefeScores) +
     '</div>';
 
