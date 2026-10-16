@@ -437,11 +437,12 @@ const DIMS_CLIMA = Object.keys(DIMS).filter(function(k){ return DIMS[k].tipo !==
 // Es lo que permite agrupar Liderazgo por el jefe evaluado y no por lo declarado.
 let GER_DE_JEFE = {};
 
-// Gerencias que se muestran completas aunque tengan menos de 5 respuestas
+// Gerencias que se muestran completas aunque no lleguen al mínimo de respuestas
 // (decisión de Talento Humano). Escribir el nombre tal como está en Estructura.
-const GERENCIAS_SIN_MINIMO = ['MARKETING'];
-// Jefes que se muestran aunque tengan menos de 5 evaluaciones.
-const JEFES_SIN_MINIMO = ['KARINA DURAND'];
+const MIN_RESP = 3;   // minimo de evaluaciones para mostrar resultados (anonimato)
+const GERENCIAS_SIN_MINIMO = [];
+// Jefes que se muestran aunque no lleguen al mínimo de evaluaciones.
+const JEFES_SIN_MINIMO = [];
 function sinMinimo(gerencia) {
   return GERENCIAS_SIN_MINIMO.indexOf(String(gerencia || '').trim().toUpperCase()) !== -1;
 }
@@ -660,7 +661,7 @@ function renderDashboard() {
     }).sort(function(a,b){return b.score-a.score;});
   }
 
-  // ---- Ranking de jefes (minimo 5 respuestas) ----
+  // ---- Ranking de jefes (minimo MIN_RESP respuestas) ----
   // Se arma sobre liderazgoData para que cuadre con la barra de Liderazgo.
   const jefes = [...new Set(liderazgoData.map(function(d){return d.jefe;}))].filter(Boolean);
   const jefeScores = jefes.map(function(j) {
@@ -670,7 +671,7 @@ function renderDashboard() {
       dimJ[k] = calcDim(rows, k);
     });
     return {nombre: j, score: pctFavorable(rows, 1, 20), n: rows.length, dims: dimJ};
-  }).filter(function(j){return j.n >= 5 || jefeSinMinimo(j.nombre);}).sort(function(a,b){return b.score-a.score;});
+  }).filter(function(j){return j.n >= MIN_RESP || jefeSinMinimo(j.nombre);}).sort(function(a,b){return b.score-a.score;});
 
   // ---- KPIs ----
   const kpis = esGG
@@ -715,7 +716,7 @@ function renderDashboard() {
     // Ranking de jefes: se muestra siempre
     '<div class="table-card">' +
       '<div class="table-title">Ranking de jefes inmediatos</div>' +
-      '<div class="table-sub">Score basado en las 20 preguntas de Liderazgo (P1–P20). Solo se muestran jefes con 5 o más respuestas (excepto Jeanette Aguirre y Karina Durand). <span style="color:var(--sage)">· Clic en una fila para ver detalle</span></div>' +
+      '<div class="table-sub">Score basado en las 20 preguntas de Liderazgo (P1–P20). Solo se muestran jefes con 3 o más respuestas. <span style="color:var(--sage)">· Clic en una fila para ver detalle</span></div>' +
       renderTablaJefes(jefeScores) +
     '</div>';
 
@@ -752,7 +753,7 @@ function kpiCard(label, value, unit, sub, color, hint, accent) {
 }
 
 function renderTablaJefes(jefes) {
-  if (!jefes.length) return '<div class="empty-icon" style="text-align:center;padding:24px;color:var(--muted);font-size:13px;">Aún no hay jefes con 5 o más respuestas</div>';
+  if (!jefes.length) return '<div class="empty-icon" style="text-align:center;padding:24px;color:var(--muted);font-size:13px;">Aún no hay jefes con ' + MIN_RESP + ' o más respuestas</div>';
   let html = '<table class="ranking-table"><thead><tr><th>#</th><th></th><th>Jefe inmediato</th><th>Score liderazgo</th><th>Barra</th><th>N° evaluaciones</th></tr></thead><tbody>';
   jefes.forEach(function(j, i) {
     const c = scoreColor(j.score);

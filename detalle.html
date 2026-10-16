@@ -244,7 +244,7 @@ const tipo  = params.get('tipo');  // 'dimension' o 'jefe'
 const nombre = decodeURIComponent(params.get('nombre') || '');
 const fEmpresa  = params.get('empresa')  || '';
 let fGerencia = params.get('gerencia') || '';
-const MIN_RESP = 5;   // minimo de respuestas para mostrar detalle (anonimato)
+const MIN_RESP = 3;   // minimo de respuestas para mostrar detalle (anonimato)
 
 // Boton volver: regresa al dashboard con los mismos filtros
 (function() {
@@ -258,11 +258,11 @@ const MIN_RESP = 5;   // minimo de respuestas para mostrar detalle (anonimato)
 // Gerencia de cada jefe (pestana Estructura). Liderazgo se filtra por la
 // gerencia del JEFE EVALUADO, igual que en el dashboard.
 let GER_DE_JEFE = {};
-// Gerencias que se muestran completas aunque tengan menos de 5 respuestas
+// Gerencias que se muestran completas aunque no lleguen al mínimo de respuestas
 // (decisión de Talento Humano). Escribir el nombre tal como está en Estructura.
-const GERENCIAS_SIN_MINIMO = ['MARKETING'];
-// Jefes que se muestran aunque tengan menos de 5 evaluaciones.
-const JEFES_SIN_MINIMO = ['KARINA DURAND'];
+const GERENCIAS_SIN_MINIMO = [];
+// Jefes que se muestran aunque no lleguen al mínimo de evaluaciones.
+const JEFES_SIN_MINIMO = [];
 function sinMinimo(gerencia) {
   return GERENCIAS_SIN_MINIMO.indexOf(String(gerencia || '').trim().toUpperCase()) !== -1;
 }
@@ -475,8 +475,8 @@ function renderJefe(allData) {
   document.getElementById('topbar-title').textContent = 'Detalle · ' + nombre;
   document.title = 'Detalle · ' + nombre;
 
-  if (rows.length < 5 && !jefeSinMinimo(nombre)) {
-    document.getElementById('content').innerHTML = '<div class="empty">Este jefe tiene menos de 5 evaluaciones. No se puede mostrar el detalle para proteger el anonimato.</div>';
+  if (rows.length < MIN_RESP && !jefeSinMinimo(nombre)) {
+    document.getElementById('content').innerHTML = '<div class="empty">Este jefe tiene menos de ' + MIN_RESP + ' evaluaciones. No se puede mostrar el detalle para proteger el anonimato.</div>';
     return;
   }
 
